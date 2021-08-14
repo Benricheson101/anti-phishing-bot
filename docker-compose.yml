@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  bot:
+    build: '.'
+    volumes:
+      - './.env:/.env'
+      - './config.toml:/config.toml'
+    depends_on:
+      - 'db'
+    environment:
+      DATABASE_URL: 'postgres://postgres:postgres@db/phishing'
+
+  db:
+    command: "postgres -c listen_addresses='*'"
+    image: 'postgres'
+    restart: 'always'
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+    volumes:
+      - 'postgres_data:/var/lib/postgres/data'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: '5s'
+      timeout: '5s'
+      retries: 5
+
+volumes:
+  postgres_data:

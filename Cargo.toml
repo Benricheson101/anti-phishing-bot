@@ -1,0 +1,27 @@
+[package]
+name = "anti-phishing"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4.19"
+dotenv = "0.15"
+futures = "0.3"
+lazy_static = "1.4.0"
+regex = "1.5.4"
+serde = { version = "1.0", features = ["derive"] }
+sqlx = { version = "0.5.5", features = ["postgres", "runtime-tokio-rustls", "json", "chrono", "migrate", "offline"] }
+tokio = { version = "1.10", features = ["rt-multi-thread", "macros", "signal"] }
+toml = "0.5"
+
+twilight-cache-inmemory = "0.6"
+twilight-command-parser = "0.6"
+twilight-gateway = "0.6"
+twilight-http = "0.6"
+twilight-model = "0.6"
+
+[[bin]]
+name = "app"
+path = "src/main.rs"

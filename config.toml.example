@@ -1,0 +1,13 @@
+[[servers]]
+id = ""
+action = "delete"
+ignore_roles = [""]
+log_channel = ""
+
+[[servers]]
+id = ""
+action = "ban"
+reason = "Sent a phishing link"
+delete_message_days = 1
+ignore_roles = [""]
+log_channel = ""

@@ -1,0 +1,12 @@
+*
+
+!/Cargo.toml
+!/Cargo.lock
+!/src
+!/migrations
+# !/.env
+!/sqlx-data.json
+# !/config.toml
+!/dummy.rs
+
+# vim:ft=gitignore

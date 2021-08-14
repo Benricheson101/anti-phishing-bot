@@ -1,0 +1,71 @@
+# foo!( # <-- new line
+#     if x { # <-- on own line
+#         foo();
+#     } else {
+#         bar();
+#     } # <-- on own line
+# )
+combine_control_expr = false
+
+# use foo:: { # <-- new line after
+#     xxx, # <-- on next line
+#     yyy,
+#     zzz,
+# }; # <-- new line before
+imports_indent = "Block"
+
+# use foo::{xxx, yyy, zzz}; # all on one line until `max_width`
+#
+# use foo::{
+#     xxx, # <-- each on own line
+#     yyy,
+#     zzz,
+# };
+imports_layout = "HorizontalVertical"
+
+# match lorem {
+#     Lorem::Ipsum => {
+#         println!("ipsum");
+#     }, # <-- trailing comma after block
+#     Lorem::Dolor => println!("dolor");
+# }
+match_block_trailing_comma = true
+
+# after 80 characters, wrap to the next line
+max_width = 80
+
+# use foo::{ # <-- one `use` per crate
+#     a,
+#     b::{self, f, g},
+#     c,
+#     d::e,
+# };
+imports_granularity = "Crate"
+
+# always use `\n`
+newline_style = "Unix"
+
+# 1. `std`, `core`, `alloc` imports
+# 2. external crates
+# 3. `self`, `super`, `crate` imports
+group_imports = "StdExternalCrate"
+
+# show warning about FIXME comments
+# report_fixme = "Always"
+
+# show warning about TODO comments
+report_todo = "Never"
+
+# struct Foo {
+#     x: u32,
+#     y: u32,
+# }
+#
+# let x = 1;
+# let y = 2;
+# let a = Foo {x, y} # instead of `Foo {x: x, y: y}`
+use_field_init_shorthand = true
+
+# // wrap really long comments [...]
+# // get wrapped to the next line
+wrap_comments = true

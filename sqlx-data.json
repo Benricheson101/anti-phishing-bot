@@ -1,0 +1,183 @@
+{
+  "db": "PostgreSQL",
+  "1418d9dd5bd9df0bc4d244a80cbe06ed537faa64f2b07370ba8d5a271ddea59d": {
+    "query": "\n                SELECT id\n                FROM domains\n                WHERE url = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "3c4c8a7331b996d542fc2ac95007b74045898d6c524b5d1f4b49264ee6e0eddb": {
+    "query": "\n                UPDATE domains\n                SET hits = hits + 1\n                WHERE url = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "b5d87a9a7124580c02d2fca114fa6e9abe3f50e5fbddf7ea86bb9dd6d6079ed5": {
+    "query": "\n                SELECT COUNT(*)\n                FROM domains\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "c6700cec30fef9d0cc0a1056571a663c7f7672b35b25edff67c5ff765d0f5b21": {
+    "query": "\n                SELECT *\n                FROM domains\n                WHERE hits != 0\n                ORDER BY hits DESC\n                LIMIT $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "hits",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "added_at",
+          "type_info": "Timestamp"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "e40182dfb0aff5eab47e72bc7d3f9f697369c4dd11c62b01c4bf293b496c14f4": {
+    "query": "\n                SELECT *\n                FROM domains\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "hits",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "added_at",
+          "type_info": "Timestamp"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "f4fa79df3132e71fbb3428642d7353009a557cc9fdd9df9ac6b911bfed4bb44e": {
+    "query": "\n                SELECT SUM(hits)\n                FROM domains\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "sum",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "ff18b05f5fe89dd8e9d5686cff54f041e3cdb63ab7ddb1ed225be250b8cb5233": {
+    "query": "\n                INSERT INTO domains (url)\n                VALUES ($1)\n                RETURNING *\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "hits",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "added_at",
+          "type_info": "Timestamp"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  }
+}
