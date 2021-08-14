@@ -5,4 +5,7 @@ A Discord bot for deleting those annoying steam phishing links.
 2. send `domain: <domain>` in the channel
 
 ## Self-Hosting
-Coming soon...
+1. Setup `.env` and `config.toml`
+2. `docker-compose up db`
+3. `docker-compose exec db psql -U postgres -c 'create database phishing;'`
+4. `docker-compose up`
