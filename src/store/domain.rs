@@ -25,6 +25,61 @@ impl DomainStore {
         .await
     }
 
+    pub async fn bulk_delete(
+        &self,
+        url: &Vec<String>,
+    ) -> Result<Vec<Domain>, sqlx::Error> {
+        sqlx::query_as!(
+            Domain,
+            r"
+                DELETE FROM domains
+                WHERE url IN (
+                    SELECT *
+                    FROM UNNEST ($1::TEXT[])
+                )
+                RETURNING *
+            ",
+            &url
+        )
+        .fetch_all(&self.pool)
+        .await
+    }
+
+    pub async fn bulk_add(
+        &self,
+        domains: &Vec<NewDomain>,
+    ) -> Result<Vec<Domain>, sqlx::Error> {
+        let domains = domains.iter().map(|d| d.clone().0).collect::<Vec<_>>();
+
+        sqlx::query_as!(
+            Domain,
+            r"
+                INSERT INTO domains (url)
+                SELECT *
+                FROM UNNEST ($1::TEXT[])
+                ON CONFLICT DO NOTHING
+                RETURNING *
+            ",
+            &domains,
+        )
+        .fetch_all(&self.pool)
+        .await
+    }
+
+    pub async fn get(&self, url: &String) -> Result<Domain, sqlx::Error> {
+        sqlx::query_as!(
+            Domain,
+            r"
+                SELECT *
+                FROM domains
+                WHERE url = $1
+            ",
+            url
+        )
+        .fetch_one(&self.pool)
+        .await
+    }
+
     pub async fn all(&self) -> Result<Vec<String>, sqlx::Error> {
         let query = sqlx::query!(
             r"

@@ -20,6 +20,44 @@
       ]
     }
   },
+  "25315d51e1fd988d58611010ce07f0e4c65917f1f8b0b4e0eb1c7d971f606a0d": {
+    "query": "\n                INSERT INTO domains (url)\n                SELECT *\n                FROM UNNEST ($1::TEXT[])\n                ON CONFLICT DO NOTHING\n                RETURNING *\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "hits",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "added_at",
+          "type_info": "Timestamp"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "TextArray"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "3c4c8a7331b996d542fc2ac95007b74045898d6c524b5d1f4b49264ee6e0eddb": {
     "query": "\n                UPDATE domains\n                SET hits = hits + 1\n                WHERE url = $1\n            ",
     "describe": {
@@ -30,6 +68,82 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "87591ccc2a045ea8451d6fcd94171edb14ea7a8304b4ab5c7aaeaeac2e5e9ec2": {
+    "query": "\n                SELECT *\n                FROM domains\n                WHERE url = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "hits",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "added_at",
+          "type_info": "Timestamp"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "b0f2b87be87086ede02acb2e8e6d820613d2bc58d3602d0168d037761b13051f": {
+    "query": "\n                DELETE FROM domains\n                WHERE url IN (\n                    SELECT *\n                    FROM UNNEST ($1::TEXT[])\n                )\n                RETURNING *\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "hits",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "added_at",
+          "type_info": "Timestamp"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "TextArray"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "b5d87a9a7124580c02d2fca114fa6e9abe3f50e5fbddf7ea86bb9dd6d6079ed5": {

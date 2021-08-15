@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Config {
+    pub phishing_feed: String,
+    pub phishing_feed_poster: Vec<String>,
+    pub discord_token: String,
     pub servers: Vec<ServerConfig>,
 }
 

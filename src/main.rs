@@ -1,9 +1,8 @@
 mod store;
 mod util;
 
-use std::{env, error::Error};
+use std::error::Error;
 
-use dotenv::dotenv;
 use futures::stream::StreamExt;
 use store::Database;
 use twilight_command_parser::{Command, CommandParserConfig, Parser};
@@ -25,24 +24,20 @@ use util::{
 use crate::store::domain::NewDomain;
 
 const CONFIG_LOCATION: &str = "./config.toml";
-const PHISHING_FEED: u64 = 875863554773893211;
-const PHISHING_FEED_USER_ID: u64 = 875863623199772722;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    dotenv().ok();
-
     let config = Config::read(CONFIG_LOCATION);
 
     let db = Database::new().await;
 
-    let token = env::var("DISCORD_TOKEN")?;
+    let token = config.clone().discord_token;
 
     let scheme = ShardScheme::Auto;
 
     let intents = Intents::GUILD_MESSAGES;
 
-    let (cluster, mut events) = Cluster::builder(token.to_owned(), intents)
+    let (cluster, mut events) = Cluster::builder(&token, intents)
         .shard_scheme(scheme)
         .build()
         .await?;
@@ -60,6 +55,9 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     command_config.add_command("stats", false);
     command_config.add_command("dump", false);
+    command_config.add_command("add", false);
+    command_config.add_command("remove", false);
+    command_config.add_command("lookup", false);
     command_config.add_prefix("phish:");
 
     let parser = Parser::new(command_config);
@@ -99,8 +97,10 @@ async fn handle_event(
         },
 
         Event::MessageCreate(msg)
-            if msg.channel_id.0 == PHISHING_FEED
-                && msg.author.id.0 == PHISHING_FEED_USER_ID =>
+            if msg.channel_id.0.to_string() == config.phishing_feed
+                && config
+                    .phishing_feed_poster
+                    .contains(&msg.author.id.0.to_string()) =>
         {
             for cap in
                 DOMAIN_FROM_FORMATTED_MESSAGE_REGEX.captures_iter(&msg.content)
@@ -174,6 +174,86 @@ async fn handle_event(
                     }
                 },
 
+                Some(Command {
+                    name: "add",
+                    arguments,
+                    ..
+                }) if config
+                    .phishing_feed_poster
+                    .contains(&msg.author.id.to_string()) =>
+                {
+                    let args = arguments
+                        .as_str()
+                        .split_whitespace()
+                        .filter(|u| URL_REGEX.is_match(u))
+                        .map(|u| NewDomain(u.to_string()))
+                        .collect::<Vec<_>>();
+
+                    if args.len() == 0 {
+                        http.create_message(msg.channel_id)
+                            .content(&format!(":x: Please include the domains you would like to add."))
+                            .unwrap()
+                            .exec()
+                            .await
+                            .unwrap();
+
+                        return Ok(());
+                    }
+
+                    let added = db.domains.bulk_add(&args).await.unwrap();
+
+                    http.create_message(msg.channel_id)
+                        .content(&format!(
+                            "Added {} domains ({} duplicates)",
+                            added.len(),
+                            args.len() - added.len()
+                        ))
+                        .unwrap()
+                        .exec()
+                        .await
+                        .unwrap();
+                }
+
+                Some(Command {
+                    name: "remove",
+                    arguments,
+                    ..
+                }) if config
+                    .phishing_feed_poster
+                    .contains(&msg.author.id.to_string()) =>
+                {
+                    let args = arguments
+                        .as_str()
+                        .split_whitespace()
+                        .filter(|u| URL_REGEX.is_match(u))
+                        .map(|u| u.to_string())
+                        .collect::<Vec<_>>();
+
+                    if args.len() == 0 {
+                        http.create_message(msg.channel_id)
+                            .content(&format!(":x: Please include the domains you would like to remove."))
+                            .unwrap()
+                            .exec()
+                            .await
+                            .unwrap();
+
+                        return Ok(());
+                    }
+
+                    let removed = db.domains.bulk_delete(&args).await.unwrap();
+
+                    http.create_message(msg.channel_id)
+                        .content(&format!(
+                            "Removed {} domains ({} nonexistant)",
+                            removed.len(),
+                            args.len() - removed.len()
+                        ))
+                        .unwrap()
+                        .exec()
+                        .await
+                        .unwrap();
+                }
+
                 Some(Command { name: "dump", .. }) => {
                     if let Ok(all_urls) = db.domains.all().await {
                         http.create_message(msg.channel_id)
@@ -185,8 +265,40 @@ async fn handle_event(
                             .await
                             .unwrap();
                     }
-                    // http.create_message(msg.channel_id)
-                    //     .files
+                },
+
+                Some(Command {
+                    name: "lookup",
+                    mut arguments,
+                    ..
+                }) => {
+                    let m = if let Some(url) = arguments.next() {
+                        if URL_REGEX.is_match(url) {
+                            if let Ok(domain) =
+                                db.domains.get(&url.to_string()).await
+                            {
+                                format!("Internal ID: {}\nDomain: `{}`\nAdded: <t:{}:R>",
+                                    domain.id,
+                                    domain.url,
+                                    domain.added_at.timestamp_millis() / 1000
+                                )
+                            } else {
+                                ":x: That domain is not in the database."
+                                    .to_string()
+                            }
+                        } else {
+                            ":x: That is not a valid domain.".to_string()
+                        }
+                    } else {
+                        ":x: Please include the domain you would like to lookup.".to_string()
+                    };
+
+                    http.create_message(msg.channel_id)
+                        .content(&m)
+                        .unwrap()
+                        .exec()
+                        .await
+                        .unwrap();
                 },
 
                 Some(_) => {},

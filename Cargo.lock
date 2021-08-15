@@ -33,7 +33,6 @@ name = "anti-phishing"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "dotenv",
  "futures",
  "lazy_static",
  "regex",
