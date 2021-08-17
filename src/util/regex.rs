@@ -11,4 +11,8 @@ lazy_static! {
         // regex from https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
         r"domain: (?:\*\*)?([-a-zA-Z0-9._-]{2,256}\.[a-z]{2,10})(?:\*\*)?"
     ).unwrap();
+
+    pub static ref BITLY_SHORTENED_URL: Regex = Regex::new(
+        r"bit\.ly/([-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
+    ).unwrap();
 }

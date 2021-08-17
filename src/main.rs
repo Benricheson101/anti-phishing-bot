@@ -18,7 +18,7 @@ use twilight_model::{
 };
 use util::{
     config::{Config, PhishingUrlAction, ServerConfig},
-    regex::{DOMAIN_FROM_FORMATTED_MESSAGE_REGEX, URL_REGEX},
+    regex::{BITLY_SHORTENED_URL, DOMAIN_FROM_FORMATTED_MESSAGE_REGEX, URL_REGEX},
 };
 
 use crate::store::domain::NewDomain;
@@ -329,14 +329,33 @@ async fn handle_event(
                     for cap in URL_REGEX.captures_iter(&msg.content) {
                         let m = cap.get(1).unwrap();
 
-                        let matched_url = &msg.content[m.start()..m.end()];
+                        let mut matched_url = msg.content[m.start()..m.end()].to_string();
+
+                        if matched_url == "bit.ly" {
+                            if let Some(cap) = BITLY_SHORTENED_URL.captures(&msg.content[m.start()..]) {
+                                let path = cap.get(1).unwrap().as_str();
+
+                                // TODO: maybe put these in a database so i dont have to make a head
+                                // request every time? idk
+                                let head = reqwest::Client::new()
+                                    .head(&format!("https://bit.ly/{}", path))
+                                    .send()
+                                    .await?;
+
+                                matched_url = if let Some(domain) = head.url().host() {
+                                    domain.to_string()
+                                } else {
+                                    return Ok(());
+                                }
+                            }
+                        }
 
                         let is_disallowed =
-                            db.domains.test(matched_url.into()).await;
+                            db.domains.test(&matched_url).await;
 
                         if is_disallowed {
-                            db.domains.hit(matched_url.into()).await;
-                            disallowed_domains.push(matched_url.to_string());
+                            db.domains.hit(&matched_url).await;
+                            disallowed_domains.push(matched_url);
                             take_action = true;
                         }
                     }

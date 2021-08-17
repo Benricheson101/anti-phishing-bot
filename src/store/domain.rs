@@ -93,7 +93,7 @@ impl DomainStore {
         Ok(query.iter().map(|r| r.url.clone()).collect::<Vec<_>>())
     }
 
-    pub async fn test(&self, url: String) -> bool {
+    pub async fn test(&self, url: &String) -> bool {
         sqlx::query!(
             r"
                 SELECT id
@@ -107,7 +107,7 @@ impl DomainStore {
         .is_ok()
     }
 
-    pub async fn hit(&self, url: String) {
+    pub async fn hit(&self, url: &String) {
         let _ = sqlx::query!(
             r"
                 UPDATE domains
