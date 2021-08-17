@@ -345,7 +345,7 @@ async fn handle_event(
                                 matched_url = if let Some(domain) = head.url().host() {
                                     domain.to_string()
                                 } else {
-                                    return Ok(());
+                                    continue;
                                 }
                             }
                         }
