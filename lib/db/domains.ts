@@ -7,6 +7,13 @@ export class DomainStore {
     return this.prisma.domains.create({data: {domain}});
   }
 
+  async bulkAdd(domains: string[]) {
+    return this.prisma.domains.createMany({
+      data: domains.map(d => ({domain: d})),
+      skipDuplicates: true,
+    });
+  }
+
   async get(domain: string): Promise<Domains | null> {
     return this.prisma.domains.findFirst({where: {domain}});
   }

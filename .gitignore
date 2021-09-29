@@ -2,5 +2,6 @@
 /.env
 /build
 *.log
+*.swp
 
 #vim:ft=gitignore

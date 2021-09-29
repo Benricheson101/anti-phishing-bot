@@ -1,7 +1,5 @@
 import {Client as DJSClient, ClientOptions, Collection} from 'discord.js';
-import {Command} from './command';
-import {Event} from './event';
-import {Database} from '../db';
+import {Command, Database, Event, ServiceManager} from '..';
 
 import {promises} from 'fs';
 import {join} from 'path';
@@ -11,8 +9,9 @@ import {PrismaClient} from '@prisma/client';
 
 export class Client extends DJSClient {
   cmds = new Collection<string, Command>();
-  events = new Collection<string, Event>();
   db: Database;
+
+  services: ServiceManager;
 
   #evtDir: string;
   #cmdDir: string;
@@ -27,6 +26,7 @@ export class Client extends DJSClient {
     super(ops);
 
     this.db = new Database(new PrismaClient());
+    this.services = new ServiceManager(this);
     this.#cmdDir = ops.cmdDir || join(__dirname, '../../src/cmds');
     this.#evtDir = ops.evtDir || join(__dirname, '../../events/cmds');
   }

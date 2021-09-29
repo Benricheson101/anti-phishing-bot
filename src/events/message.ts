@@ -1,6 +1,7 @@
 import {Message} from 'discord.js';
 import {DOMAIN_REGEX, Event} from 'fish';
 
+// TODO: logger
 export class MessageCreateEvent extends Event {
   name = 'messageCreate';
 
