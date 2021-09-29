@@ -1,0 +1,22 @@
+{
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "build",
+    "lib": ["ES2020"],
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "paths": {
+      "fish": ["./lib"]
+    },
+    "typeRoots": [
+      "node_modules/@types",
+      "./lib/types"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "lib/**/*.ts",
+    "scripts/**/*.ts"
+  ]
+}

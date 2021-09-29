@@ -1,0 +1,47 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Domains {
+  id        Int      @id @default(autoincrement())
+  domain    String   @unique
+  hits      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model GuildConfigs {
+  id         String       @unique
+  delete     Boolean      @default(true)
+  action     ActionKind   @default(NONE)
+  logChannel String?      @map("log_channel")
+  muteRole   String?      @map("mute_role")
+  exemptions Exemptions[]
+}
+
+model Exemptions {
+  id      String
+  kind    ExemptionKind
+  guild   GuildConfigs  @relation(fields: [guildId], references: [id])
+  guildId String        @map("guild_id")
+
+  @@unique([id, guildId])
+}
+
+enum ActionKind {
+  BAN
+  SOFTBAN
+  KICK
+  MUTE
+  NONE
+}
+
+enum ExemptionKind {
+  USER
+  ROLE
+}
