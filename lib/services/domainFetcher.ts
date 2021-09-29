@@ -28,7 +28,7 @@ export class DomainFetcher {
   async up() {
     try {
       await this.run();
-      this.timeout = setInterval(this.run, this.interval);
+      this.timeout = setInterval(this.run.bind(this), this.interval);
     } catch (e) {
       console.error(e);
     }

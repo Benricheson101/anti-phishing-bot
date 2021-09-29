@@ -9,9 +9,9 @@ import {PrismaClient} from '@prisma/client';
 
 export class Client extends DJSClient {
   cmds = new Collection<string, Command>();
-  db: Database;
+  db!: Database;
 
-  services: ServiceManager;
+  services!: ServiceManager;
 
   #evtDir: string;
   #cmdDir: string;
@@ -25,8 +25,6 @@ export class Client extends DJSClient {
   ) {
     super(ops);
 
-    this.db = new Database(new PrismaClient());
-    this.services = new ServiceManager(this);
     this.#cmdDir = ops.cmdDir || join(__dirname, '../../src/cmds');
     this.#evtDir = ops.evtDir || join(__dirname, '../../events/cmds');
   }
@@ -34,6 +32,9 @@ export class Client extends DJSClient {
   async init(): Promise<this> {
     await this.loadCommands();
     await this.loadEvents();
+
+    this.db = new Database(new PrismaClient());
+    this.services = new ServiceManager(this.db);
 
     return this;
   }

@@ -45,12 +45,8 @@ export class DomainStore {
   }
 
   async top(n: number) {
-    return await this.prisma.domains
+    return this.prisma.domains
       .findMany({
-        select: {
-          domain: true,
-          hits: true,
-        },
         orderBy: {hits: 'asc'},
         where: {
           hits: {
@@ -59,5 +55,15 @@ export class DomainStore {
         },
       })
       .then(a => a.slice(0, n));
+  }
+
+  async count(): Promise<number> {
+    return this.prisma.domains.count();
+  }
+
+  async totalHits(): Promise<number> {
+    return this.prisma.domains
+      .aggregate({_sum: {hits: true}})
+      .then(s => s._sum.hits || 0);
   }
 }

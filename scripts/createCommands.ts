@@ -18,11 +18,15 @@ const guild = process.env.GUILD;
     ? Routes.applicationGuildCommands(APP_ID, guild)
     : Routes.applicationCommands(APP_ID);
 
-  const createdCommands = (await rest.put(endpoint, {body: cmds})) as {
-    id: string;
-    name: string;
-  }[];
+  try {
+    const createdCommands = (await rest.put(endpoint, {body: cmds})) as {
+      id: string;
+      name: string;
+    }[];
 
-  console.log('--', createdCommands.length, 'Commands Created --');
-  console.table(createdCommands.map(c => ({name: c.name, id: c.id})));
+    console.log('--', createdCommands.length, 'Commands Created --');
+    console.table(createdCommands.map(c => ({name: c.name, id: c.id})));
+  } catch (e) {
+    console.dir(e, {depth: null});
+  }
 })();

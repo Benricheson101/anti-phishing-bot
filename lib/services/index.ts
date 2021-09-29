@@ -1,12 +1,12 @@
-import {Client, DomainFetcher} from '..';
+import {Database, DomainFetcher} from '..';
 
 export * from './domainFetcher';
 
 export class ServiceManager {
   domainFetcher: DomainFetcher;
 
-  constructor(client: Client) {
-    this.domainFetcher = new DomainFetcher(client.db);
+  constructor(db: Database) {
+    this.domainFetcher = new DomainFetcher(db);
     this.domainFetcher.up();
   }
 }

@@ -4,7 +4,6 @@ import {Command} from 'fish';
 export class PingCommand extends Command {
   name = 'ping';
   description = 'Pong!';
-
   options = [];
 
   async run(i: CommandInteraction) {

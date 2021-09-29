@@ -1,4 +1,5 @@
-import {ApplicationCommand, CommandInteraction} from 'discord.js';
+import {CommandInteraction} from 'discord.js';
+import {APIApplicationCommandOption} from 'discord-api-types';
 import {Client} from './client';
 
 export abstract class Command {
@@ -7,7 +8,7 @@ export abstract class Command {
 
   constructor(protected client: Client) {}
 
-  abstract options?: ApplicationCommand['options'];
+  abstract options?: APIApplicationCommandOption[];
 
   abstract run(i: CommandInteraction): Promise<void>;
 
