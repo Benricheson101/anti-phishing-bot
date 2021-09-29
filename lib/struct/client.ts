@@ -34,7 +34,10 @@ export class Client extends DJSClient {
     await this.loadEvents();
 
     this.db = new Database(new PrismaClient());
-    this.services = new ServiceManager(this.db);
+
+    if (!process.env.SKIP_SERVICES) {
+      this.services = new ServiceManager(this.db);
+    }
 
     return this;
   }

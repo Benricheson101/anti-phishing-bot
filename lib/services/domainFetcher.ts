@@ -9,6 +9,10 @@ const OPTIONS: RequestOptions = {
 };
 
 export class DomainFetcher {
+  attempts = 5;
+
+  failedAttempts = 0;
+
   interval = 5 * 1_000 * 60; // 5 minutes
 
   timeout?: NodeJS.Timeout;
@@ -30,7 +34,15 @@ export class DomainFetcher {
       await this.run();
       this.timeout = setInterval(this.run.bind(this), this.interval);
     } catch (e) {
-      console.error(e);
+      console.error('Error fetching domains:', e);
+
+      if (this.failedAttempts++ >= this.attempts) {
+        console.error(
+          `DomainFetcher encountered ${this.failedAttempts} and has automatically shut down.`
+        );
+
+        this.down();
+      }
     }
   }
 

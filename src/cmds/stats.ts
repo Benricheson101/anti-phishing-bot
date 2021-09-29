@@ -13,12 +13,7 @@ export class StatsCommand extends Command {
 
     const longest = Math.max(...hits.map(d => d.domain.length));
     const topHits = hits
-      .map(
-        (d, i) =>
-          `${i + 1}. ${d.domain} ${' '.repeat(
-            i >= 10 ? longest - d.domain.length - 1 : longest - d.domain.length
-          )}=> ${d.hits}`
-      )
+      .map((d, i) => `${i + 1}. ${d.domain.padEnd(longest)} => ${d.hits}`)
       .join('\n');
 
     const totalDomains = await db.domains.count();

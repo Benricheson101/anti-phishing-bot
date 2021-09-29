@@ -20,9 +20,13 @@ export class GuildConfigStore {
   }
 
   async update(guild: string, data: Partial<Omit<GuildConfigs, 'id'>>) {
-    return this.prisma.guildConfigs.update({
+    return this.prisma.guildConfigs.upsert({
       where: {id: guild},
-      data,
+      update: data,
+      create: {
+        id: guild,
+        ...data,
+      },
     });
   }
 
