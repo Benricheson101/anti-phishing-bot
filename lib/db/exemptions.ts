@@ -76,4 +76,13 @@ export class ExemptionStore {
 
     return member.roles.cache.hasAny(...guildRoles.map(r => r.id));
   }
+
+  async all(guild: string, filter?: 'USER' | 'ROLE') {
+    return this.prisma.exemptions.findMany({
+      where: {
+        guildId: guild,
+        kind: filter,
+      },
+    });
+  }
 }

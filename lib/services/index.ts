@@ -1,13 +1,14 @@
-import {Database, DomainFetcher} from '..';
+import {Client} from 'discord.js';
+import {DomainFetcher} from '..';
 
 export * from './domainFetcher';
 
 export class ServiceManager {
   domainFetcher: DomainFetcher;
 
-  constructor(db: Database) {
+  constructor(client: Client) {
     // TODO: can this be run in its own thread?
-    this.domainFetcher = new DomainFetcher(db);
+    this.domainFetcher = new DomainFetcher(client.db);
     this.domainFetcher.up();
   }
 }

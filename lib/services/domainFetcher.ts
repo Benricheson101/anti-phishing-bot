@@ -63,13 +63,16 @@ function get(options: RequestOptions): Promise<string[]> {
 
         let data = '';
 
-        res.on('data', d => (data += d));
-        res.on('close', () => resolve(JSON.parse(data)));
-        res.on('end', () => resolve(JSON.parse(data)));
-        res.on('error', reject);
-      }).end();
+        res
+          .on('data', d => (data += d))
+          .on('close', () => resolve(JSON.parse(data)))
+          .on('end', () => resolve(JSON.parse(data)))
+          .on('error', reject);
+      })
+        .on('error', reject)
+        .end();
     } catch (e) {
-      return reject(e);
+      reject(e);
     }
   });
 }
