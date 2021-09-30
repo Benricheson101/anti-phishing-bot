@@ -8,6 +8,10 @@ export class DomainStore {
   }
 
   async bulkAdd(domains: string[]) {
+    if (!domains?.length) {
+      return;
+    }
+
     return this.prisma.domains.createMany({
       data: domains.map(d => ({domain: d})),
       skipDuplicates: true,
@@ -47,7 +51,7 @@ export class DomainStore {
   async top(n: number) {
     return this.prisma.domains
       .findMany({
-        orderBy: {hits: 'asc'},
+        orderBy: {hits: 'desc'},
         where: {
           hits: {
             gt: 0,

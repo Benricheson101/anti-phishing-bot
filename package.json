@@ -17,7 +17,8 @@
     "@discordjs/rest": "^0.1.0-canary.0",
     "@prisma/client": "^3.1.1",
     "discord-api-types": "^0.23.1",
-    "discord.js": "^13.1.0"
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0"
   },
   "scripts": {
     "lint": "gts lint",
@@ -25,13 +26,12 @@
     "build": "tsc && tsc-alias -s",
     "build:clean": "yarn clean && yarn build",
     "fmt": "gts fix",
-    "prepare": "yarn run build",
     "pretest": "yarn run build",
     "posttest": "yarn run lint",
-    "start": "yarn build:clean && node .",
+    "start": "node -r dotenv/config .",
     "dev": "nodemon"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   }
 }

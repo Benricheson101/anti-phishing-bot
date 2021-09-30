@@ -6,6 +6,7 @@ import {join} from 'path';
 
 import readdir = promises.readdir;
 import {PrismaClient} from '@prisma/client';
+import {Logger} from './logger';
 
 export class Client extends DJSClient {
   cmds = new Collection<string, Command>();
@@ -34,10 +35,8 @@ export class Client extends DJSClient {
     await this.loadEvents();
 
     this.db = new Database(new PrismaClient());
-
-    if (!process.env.SKIP_SERVICES) {
-      this.services = new ServiceManager(this);
-    }
+    this.logger = new Logger(this);
+    this.services = new ServiceManager(this);
 
     return this;
   }

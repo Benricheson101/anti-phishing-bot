@@ -14,5 +14,5 @@
     "*.vim"
   ],
   "ext": "js,ts,json,yaml,yml,toml",
-  "exec": "ts-node -r tsconfig-paths/register src/index.ts"
+  "exec": "ts-node -r dotenv/config -r tsconfig-paths/register src/index.ts"
 }

@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  bot:
+    build: '.'
+    volumes:
+      - './.env:/usr/src/app/.env'
+    depends_on:
+      - 'db'
+
+  db:
+    command: "postgres -c listen_addresses='*'"
+    image: 'postgres'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'prisma'
+      POSTGRES_PASSWORD: 'prisma'
+      POSTGRES_DB: 'fish'
+    volumes:
+      - 'postgres_data:/var/lib/postgres/data'
+
+volumes:
+  postgres_data:

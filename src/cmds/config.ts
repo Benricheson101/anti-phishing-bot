@@ -216,7 +216,7 @@ export class ConfigCommand extends Command {
       return;
     }
 
-    switch (i.options.getSubcommandGroup()) {
+    switch (i.options.getSubcommandGroup(false)) {
       case 'exemptions': {
         switch (i.options.getSubcommand(true)) {
           case 'list': {

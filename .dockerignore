@@ -1,0 +1,12 @@
+*
+
+!/src
+!/lib
+!/prisma
+!/scripts
+
+!/package.json
+!/yarn.lock
+!/tsconfig.json
+
+# vim:ft=gitignore

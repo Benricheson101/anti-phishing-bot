@@ -8,7 +8,7 @@ export class MessageCreateEvent extends Event {
   async run(msg: Message) {
     const {content, member} = msg;
 
-    if (!member || msg.channel.type === 'DM') {
+    if (!member || msg.author.bot || msg.channel.type === 'DM') {
       return;
     }
 
@@ -31,57 +31,54 @@ export class MessageCreateEvent extends Event {
             msg.guild!.id
           );
 
-          if (guildConfig) {
-            if (guildConfig.delete) {
-              await msg.delete();
-            }
+          try {
+            if (guildConfig) {
+              if (guildConfig.delete) {
+                await msg.delete();
+              }
 
-            switch (guildConfig.action) {
-              case 'NONE':
-                break;
+              switch (guildConfig.action) {
+                case 'NONE':
+                  break;
 
-              case 'BAN': {
-                try {
+                case 'BAN': {
                   if (msg.member!.bannable) {
                     await msg.member!.ban({
                       reason: `Posted a phishing URL: ${hitDomain}`,
                     });
                   }
-                } catch {
-                  //
+                  break;
                 }
 
-                break;
-              }
-
-              case 'SOFTBAN': {
-                try {
+                case 'SOFTBAN': {
                   if (msg.member!.bannable) {
                     await msg.member!.ban({
                       reason: `Posted a phishing URL: ${hitDomain}`,
                     });
                   }
-                } catch {
-                  //
-                }
-                break;
-              }
-
-              case 'MUTE': {
-                if (!guildConfig.muteRole) {
-                  return;
+                  break;
                 }
 
-                try {
+                case 'MUTE': {
+                  if (!guildConfig.muteRole) {
+                    return;
+                  }
+
                   await msg.member!.roles.add(guildConfig.muteRole);
-                } catch (e) {
-                  console.error(e);
+                  break;
                 }
-                break;
               }
+
+              await this.client.logger.action(
+                msg.guild!.id,
+                msg.author,
+                hitDomain
+              );
+            } else {
+              // TODO
             }
-          } else {
-            // TODO
+          } catch (e) {
+            await this.client.logger.error(msg.guild!.id, msg.author);
           }
         }
       }
