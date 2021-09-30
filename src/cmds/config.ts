@@ -211,7 +211,10 @@ export class ConfigCommand extends Command {
         'MANAGE_GUILD'
       )
     ) {
-      await i.reply(':x: You do not have permission to use this command');
+      await i.reply({
+        content: ':x: You do not have permission to use this command',
+        ephemeral: true,
+      });
 
       return;
     }
