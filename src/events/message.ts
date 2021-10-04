@@ -52,9 +52,18 @@ export class MessageCreateEvent extends Event {
 
                 case 'SOFTBAN': {
                   if (msg.member!.bannable) {
-                    await msg.member!.ban({
-                      reason: `Posted a phishing URL: ${hitDomain}`,
-                    });
+                    try {
+                      await msg.member!.ban({
+                        reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
+                      });
+
+                      await msg.guild!.members.unban(
+                        msg.author.id,
+                        `[SOFTBAN] Posted a phishing URL: ${hitDomain}`
+                      );
+                    } catch {
+                      //
+                    }
                   }
                   break;
                 }
@@ -65,6 +74,16 @@ export class MessageCreateEvent extends Event {
                   }
 
                   await msg.member!.roles.add(guildConfig.muteRole);
+                  break;
+                }
+
+                case 'KICK': {
+                  if (msg.member!.kickable) {
+                    await msg.member!.kick(
+                      `Posted a phishing URL: ${hitDomain}`
+                    );
+                  }
+
                   break;
                 }
               }

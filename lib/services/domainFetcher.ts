@@ -26,6 +26,8 @@ export class DomainFetcher {
       await this.db.domains.bulkAdd(domainList);
     } catch (e) {
       console.error('Unable to fetch domains:', e);
+
+      throw e;
     }
   }
 
