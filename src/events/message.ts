@@ -46,31 +46,33 @@ export class MessageCreateEvent extends Event {
                     await msg.member!.ban({
                       reason: `Posted a phishing URL: ${hitDomain}`,
                     });
+                  } else {
+                    throw new Error('Missing Permissions');
                   }
+
                   break;
                 }
 
                 case 'SOFTBAN': {
                   if (msg.member!.bannable) {
-                    try {
-                      await msg.member!.ban({
-                        reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
-                      });
+                    await msg.member!.ban({
+                      reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
+                    });
 
-                      await msg.guild!.members.unban(
-                        msg.author.id,
-                        `[SOFTBAN] Posted a phishing URL: ${hitDomain}`
-                      );
-                    } catch {
-                      //
-                    }
+                    await msg.guild!.members.unban(
+                      msg.author.id,
+                      `[SOFTBAN] Posted a phishing URL: ${hitDomain}`
+                    );
+                  } else {
+                    throw new Error('Missing Permissions');
                   }
+
                   break;
                 }
 
                 case 'MUTE': {
                   if (!guildConfig.muteRole) {
-                    return;
+                    throw new Error('No configured mute role');
                   }
 
                   await msg.member!.roles.add(guildConfig.muteRole);
@@ -82,6 +84,8 @@ export class MessageCreateEvent extends Event {
                     await msg.member!.kick(
                       `Posted a phishing URL: ${hitDomain}`
                     );
+                  } else {
+                    throw new Error('Missing permissions');
                   }
 
                   break;
@@ -94,7 +98,7 @@ export class MessageCreateEvent extends Event {
                 hitDomain
               );
             } else {
-              // TODO
+              await msg.client.db.guildConfigs.add(msg.guild!.id);
             }
           } catch (e) {
             await this.client.logger.error(msg.guild!.id, msg.author);
