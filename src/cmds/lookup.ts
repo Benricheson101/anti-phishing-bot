@@ -21,7 +21,6 @@ export class LookupCommand extends Command {
 
     if (info) {
       const msg = `
-      Internal ID: \`${info.id}\`
       Domain: \`${info.domain}\`
       Added: <t:${Math.floor(info.createdAt.getTime() / 1000)}:R>
       Hits: \`${info.hits}\`

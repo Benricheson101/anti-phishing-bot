@@ -31,10 +31,17 @@ export class MessageCreateEvent extends Event {
             msg.guild!.id
           );
 
+          const actionsTaken: string[] = [];
+          const actionsFailed: string[] = [];
           try {
             if (guildConfig) {
               if (guildConfig.delete) {
-                await msg.delete();
+                try {
+                  await msg.delete();
+                  actionsTaken.push('DELETE');
+                } catch {
+                  actionsFailed.push('DELETE');
+                }
               }
 
               switch (guildConfig.action) {
@@ -46,8 +53,9 @@ export class MessageCreateEvent extends Event {
                     await msg.member!.ban({
                       reason: `Posted a phishing URL: ${hitDomain}`,
                     });
+                    actionsTaken.push('BAN');
                   } else {
-                    throw new Error('Missing Permissions');
+                    actionsFailed.push('BAN');
                   }
 
                   break;
@@ -63,8 +71,10 @@ export class MessageCreateEvent extends Event {
                       msg.author.id,
                       `[SOFTBAN] Posted a phishing URL: ${hitDomain}`
                     );
+
+                    actionsTaken.push('SOFTBAN');
                   } else {
-                    throw new Error('Missing Permissions');
+                    actionsFailed.push('SOFTBAN');
                   }
 
                   break;
@@ -72,10 +82,16 @@ export class MessageCreateEvent extends Event {
 
                 case 'MUTE': {
                   if (!guildConfig.muteRole) {
-                    throw new Error('No configured mute role');
+                    actionsFailed.push('MUTE');
+                    break;
                   }
 
-                  await msg.member!.roles.add(guildConfig.muteRole);
+                  try {
+                    await msg.member!.roles.add(guildConfig.muteRole);
+                    actionsTaken.push('MUTE');
+                  } catch {
+                    actionsFailed.push('MUTE');
+                  }
                   break;
                 }
 
@@ -84,8 +100,9 @@ export class MessageCreateEvent extends Event {
                     await msg.member!.kick(
                       `Posted a phishing URL: ${hitDomain}`
                     );
+                    actionsTaken.push('KICK');
                   } else {
-                    throw new Error('Missing permissions');
+                    actionsFailed.push('KICK');
                   }
 
                   break;
@@ -95,13 +112,25 @@ export class MessageCreateEvent extends Event {
               await this.client.logger.action(
                 msg.guild!.id,
                 msg.author,
-                hitDomain
+                hitDomain,
+                actionsTaken,
+                actionsFailed
               );
+
+              if (guildConfig.notify && actionsTaken.length) {
+                await msg.member?.send({
+                  content: `Phishing link detected in **${
+                    msg.guild!.name
+                  }**. Actions taken: ${actionsTaken
+                    .map(a => `\`${a}\``)
+                    .join(', ')}\n> \`${hitDomain}\``,
+                });
+              }
             } else {
               await msg.client.db.guildConfigs.add(msg.guild!.id);
             }
           } catch (e) {
-            await this.client.logger.error(msg.guild!.id, msg.author);
+            console.error(e);
           }
         }
       }

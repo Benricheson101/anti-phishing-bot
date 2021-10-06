@@ -8,7 +8,6 @@ generator client {
 }
 
 model Domains {
-  id        Int      @id @default(autoincrement())
   domain    String   @unique
   hits      Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
@@ -21,6 +20,7 @@ model GuildConfigs {
   action     ActionKind   @default(NONE)
   logChannel String?      @map("log_channel")
   muteRole   String?      @map("mute_role")
+  notify     Boolean?     @default(false)
   exemptions Exemptions[]
 }
 

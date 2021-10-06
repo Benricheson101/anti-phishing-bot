@@ -5,7 +5,13 @@ import {Client} from './client';
 export class Logger {
   constructor(private client: Client) {}
 
-  async action(guildId: string, user: User, domain: string) {
+  async action(
+    guildId: string,
+    user: User,
+    domain: string,
+    taken: string[],
+    failed: string[]
+  ) {
     try {
       const [channel, guild] = await this.getGuildInfo(guildId);
 
@@ -14,38 +20,7 @@ export class Logger {
       }
 
       await channel.send({
-        content: this.genLogMessage(guild, user, domain),
-        allowedMentions: {parse: []},
-      });
-    } catch {
-      //
-    }
-  }
-
-  async error(guildId: string, user: User) {
-    try {
-      const [channel, guild] = await this.getGuildInfo(guildId);
-
-      if (!channel || !channel.isText() || !guild) {
-        return;
-      }
-
-      const actions: string[] = [];
-
-      if (guild.delete) {
-        actions.push('DELETE');
-      }
-
-      if (guild.action !== 'NONE' || !actions.length) {
-        actions.push(guild.action);
-      }
-
-      const msg = `:warning: Unable to execute action ${actions
-        .map(a => `\`${a}\``)
-        .join(', ')} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
-
-      await channel.send({
-        content: msg,
+        content: this.genLogMessage(user, domain, taken, failed),
         allowedMentions: {parse: []},
       });
     } catch {
@@ -69,19 +44,24 @@ export class Logger {
     return [channel, guild];
   }
 
-  private genLogMessage(config: GuildConfigs, user: User, domain: string) {
-    const actions: string[] = [];
-
-    if (config.delete) {
-      actions.push('DELETE');
+  private genLogMessage(
+    user: User,
+    domain: string,
+    taken: string[],
+    failed: string[]
+  ) {
+    if (taken.length) {
+      return `:hammer: Phishing URL sent by ${user} (**${user.tag}**, \`${
+        user.id
+      }\`). Actions: ${taken.map(a => `\`${a}\``).join(', ')} ${
+        failed.length
+          ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
+          : ''
+      }\n> \`${domain}\``;
+    } else {
+      return `:warning: Unable to execute action ${failed
+        .map(a => `\`${a}\``)
+        .join(', ')} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
     }
-
-    if (config.action !== 'NONE' || !actions.length) {
-      actions.push(config.action);
-    }
-
-    return `:hammer: Phishing URL sent by ${user} (**${user.tag}**, \`${
-      user.id
-    }\`). Actions: ${actions.map(a => `\`${a}\``).join(', ')}\n> \`${domain}\``;
   }
 }

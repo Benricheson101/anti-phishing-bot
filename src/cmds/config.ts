@@ -63,6 +63,11 @@ export class ConfigCommand extends Command {
           description: 'The role to give users when `action` is set to `MUTE`',
           type: ApplicationCommandOptionType.Role,
         },
+        {
+          name: 'notify',
+          description: "Should users be DM'd when they are action'd",
+          type: ApplicationCommandOptionType.Boolean,
+        },
       ],
     },
     {
