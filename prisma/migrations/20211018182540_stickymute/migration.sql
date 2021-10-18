@@ -21,7 +21,7 @@ CREATE TYPE "Level" AS ENUM ('ALWAYS', 'YES', 'NO');
 ALTER TYPE "ActionKind" ADD VALUE 'STICKYMUTE';
 
 -- AlterEnum
-ALTER TYPE "ExemptionKind" ADD VALUE 'CHANNEL';
+ALTER TYPE "ExemptionKind" ADD VALUE 'CHANNEL' BEFORE 'USER';
 
 /* UNIQUE INDEX replaced w/ PRIMARY KEY INDEX */
 -- DropIndex

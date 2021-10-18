@@ -59,7 +59,7 @@ enum ActionKind {
 }
 
 enum ExemptionKind {
+  CHANNEL
   USER
   ROLE
-  CHANNEL
 }
