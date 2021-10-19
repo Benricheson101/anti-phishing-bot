@@ -7,6 +7,8 @@ services:
       - './.env:/usr/src/app/.env'
     depends_on:
       - 'db'
+      - 'prometheus'
+    ports: ['9000:9000']
 
   db:
     command: "postgres -c listen_addresses='*'"
@@ -19,5 +21,24 @@ services:
     volumes:
       - 'postgres_data:/var/lib/postgres/data'
 
+  grafana:
+    image: 'grafana/grafana'
+    ports:
+      - '3000:3000'
+    volumes:
+      - './metrics/fish_dashboard.json:/etc/grafana/provisioning/dashboards/fish_dashboard.json'
+      - './metrics/grafana/provisioning:/etc/grafana/provisioning'
+      - 'grafana_data:/var/lib/grafana'
+    depends_on:
+      - 'prometheus'
+
+  prometheus:
+    image: 'prom/prometheus'
+    volumes:
+      - './metrics/prometheus.yml:/etc/prometheus/prometheus.yml'
+      - 'prometheus_data:/prometheus'
+
 volumes:
   postgres_data:
+  grafana_data:
+  prometheus_data:

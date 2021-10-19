@@ -1,11 +1,14 @@
-import {request, RequestOptions} from 'http';
-import {Database} from '..';
+import {request, RequestOptions} from 'https';
+import {URL} from 'url';
+import {Client} from '..';
+
+const API_URL = new URL(process.env.API_URL!);
 
 const OPTIONS: RequestOptions = {
   method: 'GET',
-  hostname: 'api.phish.surf',
-  path: '/gimme-domains',
-  port: 5000,
+  hostname: API_URL.hostname,
+  path: API_URL.pathname,
+  port: API_URL.port,
 };
 
 export class DomainFetcher {
@@ -17,13 +20,14 @@ export class DomainFetcher {
 
   timeout?: NodeJS.Timeout;
 
-  constructor(private db: Database) {}
+  constructor(private client: Client) {}
 
   async run() {
     try {
       const domainList = await get(OPTIONS);
 
-      await this.db.domains.bulkAdd(domainList);
+      await this.client.db.domains.bulkAdd(domainList);
+      await this.client.metrics.updateDomainCount();
     } catch (e) {
       console.error('Unable to fetch domains:', e);
 

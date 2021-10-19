@@ -45,3 +45,5 @@ enum ExemptionKind {
   USER
   ROLE
 }
+
+// vim:si

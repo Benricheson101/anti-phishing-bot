@@ -6,6 +6,7 @@
     "lib": ["ES2020"],
     "baseUrl": ".",
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "paths": {
       "fish": ["./lib"]
     },

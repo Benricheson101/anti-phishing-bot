@@ -1,7 +1,6 @@
 import {Message} from 'discord.js';
 import {DOMAIN_REGEX, Event} from 'fish';
 
-// TODO: logger
 export class MessageCreateEvent extends Event {
   name = 'messageCreate';
 
@@ -24,7 +23,8 @@ export class MessageCreateEvent extends Event {
 
       if (trueAt !== -1) {
         const hitDomain = matches[trueAt];
-        await msg.client.db.domains.hit(hitDomain);
+
+        this.client.metrics.addDomainHit(hitDomain);
 
         if (!(await msg.client.db.exemptions.isExempt(msg.member!))) {
           const guildConfig = await msg.client.db.guildConfigs.get(

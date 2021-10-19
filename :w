@@ -1,4 +1,5 @@
-import {Client, DomainFetcher} from '..';
+import {Client} from 'discord.js';
+import {DomainFetcher} from '..';
 
 export * from './domainFetcher';
 

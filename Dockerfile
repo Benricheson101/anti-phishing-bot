@@ -6,7 +6,7 @@ RUN yarn global add prisma
 
 WORKDIR /usr/src/app
 
-COPY package.json yarn.lock tsconfig.json prisma/ ./
+COPY package.json yarn.lock tsconfig.json ./
 
 RUN yarn
 

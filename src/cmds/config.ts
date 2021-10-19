@@ -17,6 +17,7 @@ export class ConfigCommand extends Command {
     },
     {
       // TODO: maybe use sub command groups?
+      // TODO: unset command
       name: 'set',
       description: 'Configure how the bot works',
       type: ApplicationCommandOptionType.Subcommand,
@@ -60,7 +61,8 @@ export class ConfigCommand extends Command {
         },
         {
           name: 'mute_role',
-          description: 'The role to give users when `action` is set to `MUTE`',
+          description:
+            'Ping a role when a phishing link is posted. Note: requires a log chanel',
           type: ApplicationCommandOptionType.Role,
         },
         {

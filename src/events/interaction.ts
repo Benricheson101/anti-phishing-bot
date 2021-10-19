@@ -10,9 +10,10 @@ export class InteractionCreateEvent extends Event {
 
       if (cmd) {
         try {
-          cmd.run(i);
+          await cmd.run(i);
+          this.client.metrics.addCommandUsage(i.commandName, true);
         } catch {
-          //
+          this.client.metrics.addCommandUsage(i.commandName, false);
         }
       }
     }

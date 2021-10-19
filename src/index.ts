@@ -1,5 +1,6 @@
 import {join} from 'path';
 import {Client} from 'fish';
+import './server';
 
 new Client({
   cmdDir: join(__dirname, './cmds'),

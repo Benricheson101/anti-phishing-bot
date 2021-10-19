@@ -7,8 +7,11 @@ import {join} from 'path';
 import readdir = promises.readdir;
 import {PrismaClient} from '@prisma/client';
 import {Logger} from './logger';
+import {Metrics} from './metric';
 
 export class Client extends DJSClient {
+  metrics = new Metrics(this);
+
   cmds = new Collection<string, Command>();
   db!: Database;
 

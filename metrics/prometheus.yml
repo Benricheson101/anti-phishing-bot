@@ -1,0 +1,9 @@
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 1s
+
+    static_configs:
+      - targets: ['bot:9000']
+        labels:
+          service: 'fish'
+          group: 'production'
