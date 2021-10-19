@@ -172,11 +172,14 @@ export class MessageCreateEvent extends Event {
         });
     }
 
-    if ((actionsFailed.length || config.notify === 'ALWAYS') && !actionsTaken.length) {
+    if ((actionsFailed.length || config.logLevel === 'ALWAYS') && !actionsTaken.length) {
       actionsTaken.push('NONE');
     }
 
-    this.client.logger.action(msg, member, hits, taken, failed)
-      .catch(console.error)
+    if ( config.logLevel !== 'NO' && config.logChannel && 
+        ( actionsTaken.length || actionsFailed.length )) {
+      this.client.logger.action(msg, config, hits, actionsTaken, actionsFailed)
+        .catch(console.error)
+    }
   }
 }
