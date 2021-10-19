@@ -26,25 +26,20 @@ export class DomainStore {
     return this.prisma.domains.delete({where: {domain}});
   }
 
-  async exists(domain: string): Promise<boolean> {
-    return this.prisma.domains.count({where: {domain}}).then(c => c > 0);
+  async check(domains: string[]): Promise<string[]> {
+    const matches = await this.prisma.domains.findMany({where: { domain: { in: domains}}})
+      .then (r=>r.map(d=>d.domain));
+    this.prisma.domains.updateMany({
+      where: { domain: { in: domains }},
+      data: { hits: { increment: 1 } },
+    });
+    return matches;
   }
 
   async update(domain: string, data: Partial<Domains>) {
     return this.prisma.domains.update({
       where: {domain},
       data,
-    });
-  }
-
-  async hit(domain: string) {
-    return this.prisma.domains.update({
-      where: {domain},
-      data: {
-        hits: {
-          increment: 1,
-        },
-      },
     });
   }
 

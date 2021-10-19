@@ -1,4 +1,4 @@
-import {Message} from 'discord.js';
+import {Message, TextChannel} from 'discord.js';
 import {DOMAIN_REGEX, Event} from 'fish';
 
 // TODO: logger
@@ -7,133 +7,176 @@ export class MessageCreateEvent extends Event {
 
   async run(msg: Message) {
     const {content, member} = msg;
+    if (!member || msg.author.bot || !msg.guild) { return; }
+   
+    const channel = msg.channel as TextChannel;
+    
+    let matches = [...content.matchAll(DOMAIN_REGEX)].map(d => d[0]);
+    if (!matches || !matches.length) { return; }
 
-    if (!member || msg.author.bot || msg.channel.type === 'DM') {
-      return;
+    const hits = await this.client.db.domains.check(matches);
+    if (!hits || !hits.length) { return; }
+
+    const config = await this.client.db.guildConfigs.get(msg.guildId!);
+    if (!config) { 
+      this.client.db.guildConfigs.add(msg.guildId!)  
+      return; 
     }
 
-    let matches;
-    if (
-      (matches = [...content.matchAll(DOMAIN_REGEX)].map(d => d[0])) &&
-      matches.length
-    ) {
-      const toCheck = matches.map(d => msg.client.db.domains.exists(d));
+    const actionsTaken: string[] = []
+    const actionsFailed: string[] = []
 
-      const checked = await Promise.all(toCheck);
-      const trueAt = checked.indexOf(true);
+    const exemption = await this.client.db.exemptions.checkExempt(msg);
 
-      if (trueAt !== -1) {
-        const hitDomain = matches[trueAt];
-        await msg.client.db.domains.hit(hitDomain);
+    let dm;
+    let res;
+    let note = hits.reduce((t,d) => `${t}\n\`${d}\``,
+      `You have posted a known **Phishing** link in #${channel.name} on ${msg.guild.name}\n\nDOMAIN/S:`);
 
-        if (!(await msg.client.db.exemptions.isExempt(msg.member!))) {
-          const guildConfig = await msg.client.db.guildConfigs.get(
-            msg.guild!.id
-          );
+    try {
+      switch (config.notify) {
+        case 'ALWAYS': {
+          dm = await member.createDM();
+          res = await dm.send(note);
+          dm.sendTyping();
+          break;
+        }
 
-          const actionsTaken: string[] = [];
-          const actionsFailed: string[] = [];
-          try {
-            if (guildConfig) {
-              if (guildConfig.delete) {
-                try {
-                  await msg.delete();
-                  actionsTaken.push('DELETE');
-                } catch {
-                  actionsFailed.push('DELETE');
-                }
-              }
-
-              switch (guildConfig.action) {
-                case 'NONE':
-                  break;
-
-                case 'BAN': {
-                  if (msg.member!.bannable) {
-                    await msg.member!.ban({
-                      reason: `Posted a phishing URL: ${hitDomain}`,
-                    });
-                    actionsTaken.push('BAN');
-                  } else {
-                    actionsFailed.push('BAN');
-                  }
-
-                  break;
-                }
-
-                case 'SOFTBAN': {
-                  if (msg.member!.bannable) {
-                    await msg.member!.ban({
-                      reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
-                    });
-
-                    await msg.guild!.members.unban(
-                      msg.author.id,
-                      `[SOFTBAN] Posted a phishing URL: ${hitDomain}`
-                    );
-
-                    actionsTaken.push('SOFTBAN');
-                  } else {
-                    actionsFailed.push('SOFTBAN');
-                  }
-
-                  break;
-                }
-
-                case 'MUTE': {
-                  if (!guildConfig.muteRole) {
-                    actionsFailed.push('MUTE');
-                    break;
-                  }
-
-                  try {
-                    await msg.member!.roles.add(guildConfig.muteRole);
-                    actionsTaken.push('MUTE');
-                  } catch {
-                    actionsFailed.push('MUTE');
-                  }
-                  break;
-                }
-
-                case 'KICK': {
-                  if (msg.member!.kickable) {
-                    await msg.member!.kick(
-                      `Posted a phishing URL: ${hitDomain}`
-                    );
-                    actionsTaken.push('KICK');
-                  } else {
-                    actionsFailed.push('KICK');
-                  }
-
-                  break;
-                }
-              }
-
-              await this.client.logger.action(
-                msg.guild!.id,
-                msg.author,
-                hitDomain,
-                actionsTaken,
-                actionsFailed
-              );
-
-              if (guildConfig.notify && actionsTaken.length) {
-                await msg.member?.send({
-                  content: `Phishing link detected in **${
-                    msg.guild!.name
-                  }**. Actions taken: ${actionsTaken
-                    .map(a => `\`${a}\``)
-                    .join(', ')}\n> \`${hitDomain}\``,
-                });
-              }
-            } else {
-              await msg.client.db.guildConfigs.add(msg.guild!.id);
-            }
-          } catch (e) {
-            console.error(e);
+        case 'YES': {
+          if (!exemption) {
+            dm = await member.createDM();
+            res = await dm.send(note);
+            dm.sendTyping();
           }
+        break;
         }
       }
+    } catch (e) {
+      actionsFailed.push('NOTIFY');
+      // console.error(e);
     }
+
+    try {
+      switch (config.delete)
+      {
+        case 'ALWAYS': {
+          if (exemption !== 'CHANNEL') {
+            if (!msg.deletable) {
+              actionsFailed.push('DELETE');
+              break;
+            }
+            await msg.delete();
+            actionsTaken.push('DELETE');
+          }
+          break;
+        }
+
+        case 'YES': {
+          if (!exemption) {
+            if (!msg.deletable) {
+              actionsFailed.push('DELETE');
+              break;
+            }
+            await msg.delete();
+            actionsTaken.push('DELETE');
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      actionsFailed.push('DELETE');
+      // console.error(e);
+    }
+    if (!exemption) {
+      try {
+        switch (config.action) {
+          case 'MUTE': {
+            if (!config.muteRole) {
+              actionsFailed.push('MUTE');
+              break;
+            }
+            await member.roles.add (config.muteRole, 
+              `Anti-Phishing Protection URL: ${hits[0]}`);
+            actionsTaken.push('MUTE');
+            break;
+          }
+
+          case 'STICKYMUTE': {
+            if (!config.muteRole) {
+              actionsFailed.push('STICKYMUTE');
+              break;
+            }
+            await member.roles.add ( config.muteRole,
+              `Anti-Phishing Protection URL: ${hits[0]}`);
+            await this.client.db.muted.add(member);
+            actionsTaken.push('STICKYMUTE')
+            break;
+          }
+
+          case 'KICK': {
+            if (!member.kickable) {
+              actionsFailed.push('KICK');
+              break;
+            }
+            await member.kick(`Anti-Phishing Protection URL: ${hits[0]}`);
+            actionsTaken.push('KICK');
+            break;
+          }
+
+          case 'SOFTBAN': {
+            if (!member.bannable) {
+              actionsTaken.push('SOFTBAN');
+              break;
+            }
+            await member.ban({ 
+              reason: `[SOFTBAN] Anti-Phishing Protection URL: ${hits[0]}` 
+            });
+            await new Promise (r => {
+              setTimeout (()=>{
+                r (msg.guild!.members.unban(member.id,
+                  `[SOFTBAN] Anti-Phishing Protection URL: ${hits[0]}`
+                ));
+              },5000);
+            });
+            actionsTaken.push('SOFTBAN')
+            break;
+          }
+
+          case 'BAN': {
+            if (!member.bannable) {
+              actionsFailed.push('BAN');
+              break;
+            }
+            await member.ban({
+              reason: `Anti-Phishing Protection URL: ${hits[0]}`
+            });
+            actionsTaken.push('BAN');
+            break;
+          }
+        }
+      } catch (e) {
+        actionsFailed.push(config.action);
+        console.error(e);
+      }
+    }
+    
+    if (actionsTaken.length && dm && res) {
+      await res.edit(
+        actionsTaken.reduce((t,a)=>`${t}\n\`${a}\``,
+          `${note}\n\nACTION/S:`)
+      )
+        .then(()=>actionsTaken.unshift('NOTIFY'))
+        .catch((e)=>{
+          actionsFailed.unshift('NOTIFY');
+          // console.error (e);
+        });
+    }
+
+    if ((actionsFailed.length || config.notify === 'ALWAYS') && !actionsTaken.length) {
+      actionsTaken.push('NONE');
+    }
+
+    this.client.logger.action(msg, member, hits, taken, failed)
+      .catch(console.error)
   }
 }
