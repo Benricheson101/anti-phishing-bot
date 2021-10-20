@@ -25,6 +25,7 @@ export class MessageCreateEvent extends Event {
         const hitDomain = matches[trueAt];
 
         this.client.metrics.addDomainHit(hitDomain);
+        await this.client.db.domains.hit(hitDomain);
 
         if (!(await msg.client.db.exemptions.isExempt(msg.member!))) {
           const guildConfig = await msg.client.db.guildConfigs.get(
