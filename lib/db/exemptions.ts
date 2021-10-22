@@ -52,4 +52,8 @@ export class ExemptionStore {
       select:  {kind: true },
     }))?.kind || false;
   }
+
+  async all (guildId: string, kind?: 'USER' | 'ROLE' | 'CHANNEL') {
+    return this.prisma.exemptions.findMany({where: { guildId, kind }});
+  }
 }
