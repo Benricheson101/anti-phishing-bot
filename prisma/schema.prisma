@@ -21,7 +21,8 @@ model GuildConfigs {
   logChannel String?      @map("log_channel")
   muteRole   String?      @map("mute_role")
   notify     Level?       @default(NO)
-  logLevel   Level?       @default(NO)
+  logLevel   Level?       @default(NO) @map("log_level")
+  template   String?      
   exemptions Exemptions[]
   muted      Muted[]
 }

@@ -25,12 +25,12 @@ export class ExemptionStore {
     });
   }
 
-  async delete(guildId: string, id: string) {
-    return this.prisma.exemptions.delete({
-      where: {
-        id_guildId: {id, guildId},
-      },
+  async delete(guildId: string, id: string): Promise<Exemptions | null> {
+    try { 
+      return this.prisma.exemptions.delete({
+        where: { id_guildId: {id, guildId},},
     });
+    } catch ( e ) { return null }
   }
   
   async checkExempt(message: Message): Promise<ExemptionKind | false> {

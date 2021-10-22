@@ -46,7 +46,7 @@ DROP INDEX "GuildConfigs_id_key" CASCADE;
 */
 -- AlterTable
 ALTER TABLE "GuildConfigs" ADD CONSTRAINT "GuildConfigs_pkey" PRIMARY KEY ("id"),
-ADD COLUMN "logLevel" "Level" DEFAULT 'NO'::"Level",
+ADD COLUMN "log_level" "Level" DEFAULT 'NO'::"Level",
 /* Destructive basic autogen:
 DROP COLUMN "delete",
 ADD COLUMN "delete" "Level" DEFAULT E'YES',

@@ -19,16 +19,17 @@ export class MutedStore {
   }
   
   async get(guildId: string, id: string): Promise<Muted | null> {
-    return this.prisma.exemptions.findUnique({
+    return this.prisma.muted.findUnique({
       where: { id_guildId: {id, guildId}},
     });
   }
 
-  async delete(guildId: string, id: string) {
-    return this.prisma.exemptions.delete({
-      where: {
-        id_guildId: {id, guildId},
-      },
+  async delete(guildId: string, id: string): Promise <Muted | null> {
+    try { return this.prisma.muted.delete ({ 
+      where: { id_guildId: { id, guildId }}
     });
+    } catch (e) {
+      return null;
+    }
   }
 }

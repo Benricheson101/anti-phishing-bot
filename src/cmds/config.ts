@@ -24,7 +24,18 @@ export class ConfigCommand extends Command {
         {
           name: 'delete',
           description: 'Should phishing messages be deleted?',
-          type: ApplicationCommandOptionType.Boolean,
+          type: ApplicationCommandOptionType.String,
+          choices: [
+            { name: 'Always',
+              value: 'ALWAYS',
+            },
+            { name: 'Yes',
+              value: 'YES',
+            },
+            { name: 'No',
+              value: 'NO'
+            },
+          ],
         },
         {
           name: 'action',
@@ -47,6 +58,9 @@ export class ConfigCommand extends Command {
               name: 'Mute',
               value: 'MUTE',
             },
+            { name: 'StickyMute',
+              value: 'STICKYMUTE',
+            },
             {
               name: 'None',
               value: 'NONE',
@@ -58,6 +72,21 @@ export class ConfigCommand extends Command {
           description: 'The channel where logs will be posted',
           type: ApplicationCommandOptionType.Channel,
         },
+        { name: 'log_level',
+          description: 'The level of logging',
+          type: ApplicationCommandOptionType.String,
+          choices: [
+            { name: 'Always',
+              value: 'ALWAYS',
+            },
+            { name: 'Yes',
+              value: 'YES',
+            },
+            { name: 'No',
+              value: 'NO',
+            },
+          ]
+        },
         {
           name: 'mute_role',
           description: 'The role to give users when `action` is set to `MUTE`',
@@ -66,9 +95,24 @@ export class ConfigCommand extends Command {
         {
           name: 'notify',
           description: "Should users be DM'd when they are action'd",
-          type: ApplicationCommandOptionType.Boolean,
+          type: ApplicationCommandOptionType.String,
+          choices: [
+            { name: 'Always',
+              value: 'ALWAYS',
+            },
+            { name: 'Yes',
+              value: 'YES',
+            },
+            { name: 'No',
+              value: 'NO',
+            },
+          ]
         },
-      ],
+/*        { name: 'template',
+          description: 'The message template to send to the users',
+          type: ApplicationCommandOptionType.String,
+        },
+*/     ],
     },
     {
       name: 'exemptions',
@@ -86,6 +130,9 @@ export class ConfigCommand extends Command {
               type: ApplicationCommandOptionType.String,
               required: false,
               choices: [
+                { name: 'Channel',
+                  value: 'CHANNEL',
+                },
                 {
                   name: 'Role',
                   value: 'ROLE',
@@ -109,6 +156,9 @@ export class ConfigCommand extends Command {
               type: ApplicationCommandOptionType.String,
               required: true,
               choices: [
+                { name: 'Channel',
+                  value: 'CHANNEL',
+                },
                 {
                   name: 'Role',
                   value: 'ROLE',
@@ -118,6 +168,10 @@ export class ConfigCommand extends Command {
                   value: 'USER',
                 },
               ],
+            },
+            { name: 'channel',
+              description: 'The channel to exempt. Only usable when `kind: Channel`',
+              type: ApplicationCommandOptionType.Channel
             },
             {
               name: 'role',
@@ -143,6 +197,9 @@ export class ConfigCommand extends Command {
               type: ApplicationCommandOptionType.String,
               required: true,
               choices: [
+                { name: 'Channel',
+                  value: 'CHANNEL',
+                },
                 {
                   name: 'Role',
                   value: 'ROLE',
@@ -152,6 +209,11 @@ export class ConfigCommand extends Command {
                   value: 'USER',
                 },
               ],
+            },
+            { name: 'channel',
+              description:
+                'The exemption to remove. Only usable when `kind: Channel`',
+              type: ApplicationCommandOptionType.Channel,
             },
             {
               name: 'role',
@@ -180,6 +242,9 @@ export class ConfigCommand extends Command {
           type: ApplicationCommandOptionType.String,
           required: true,
           choices: [
+            { name: 'notify',
+              value: 'notify',
+            },
             {
               name: 'delete',
               value: 'delete',
@@ -192,11 +257,17 @@ export class ConfigCommand extends Command {
               name: 'log_channel',
               value: 'logChannel',
             },
+            { name: 'log_level',
+              value: 'logLevel'
+            },
             {
               name: 'mute_role',
               value: 'muteRole',
             },
-          ],
+/*            { name: 'template',
+              value: 'template',
+            }
+*/          ],
         },
       ],
     },
@@ -229,6 +300,7 @@ export class ConfigCommand extends Command {
         switch (i.options.getSubcommand(true)) {
           case 'list': {
             const filter = (i.options.getString('filter') || undefined) as
+              | 'CHANNEL'
               | 'USER'
               | 'ROLE'
               | undefined;
@@ -237,24 +309,57 @@ export class ConfigCommand extends Command {
               i.guild.id,
               filter
             );
-
-            const _users = exemptions
-              .filter(e => e.kind === 'USER')
-              .map(e => `- ${e.id}`);
-            const users = _users.join('\n');
-
-            const _roles = exemptions
-              .filter(e => e.kind === 'ROLE')
-              .map(e => `- ${e.id}`);
-            const roles = _roles.join('\n');
+            
+            const { channels, roles, users, totals } = exemptions.reduce (( 
+              x: {
+                channels: string,
+                roles: string,
+                users: string,
+                totals: {
+                  channels: number,
+                  roles: number,
+                  users: number
+                }
+              }, { id, kind }) => {
+                switch (kind) {
+                  case 'CHANNEL': {
+                    x.totals.channels++;
+                    x.channels = `${x.channels}\n- ${id}`
+                    break;
+                  }
+                  case 'ROLE': {
+                    x.totals.roles++;
+                    x.roles = `${x.roles}\n- ${id}`;
+                    break;
+                  }
+                  case 'USER': {
+                    x.totals.users++;
+                    x.roles = `${x.users}\n- ${id}`;
+                    break;
+                  }
+                }
+                return x
+              },
+              {
+                channels: '',
+                roles: '',
+                users:'',
+                totals: {
+                  channels: 0,
+                  roles: 0,
+                  users: 0
+                 }});
 
             const msg = `\`\`\`md
             => Total Exemptions: ${exemptions.length}
 
-            -- Users (${_users.length}): --
+            -- Channels (${totals.channels}): -- 
+            ${channels || 'No exempt Channels'}
+
+            -- Users (${totals.users}): --
             ${users || 'No Exempt Users'}
 
-            -- Roles (${_roles.length}): --
+            -- Roles (${totals.roles}): --
             ${roles || 'No Exempt Roles'}
             \`\`\``
               .replace(/^ +/gm, '')
@@ -371,6 +476,8 @@ export class ConfigCommand extends Command {
                 op.name = 'logChannel';
               } else if (op.name === 'mute_role') {
                 op.name = 'muteRole';
+              } else if (op.name === 'log_level') {
+                op.name = 'log_level';
               }
 
               update[op.name as string] = op.value!;
@@ -391,10 +498,13 @@ export class ConfigCommand extends Command {
             const d = i.options.get('reset_field', true);
 
             const DEFAULTS: Record<string, string | boolean | null> = {
-              delete: true,
+              notify: 'NO',
+              delete: 'YES',
               action: 'NONE',
               muteRole: null,
               logChannel: null,
+              logLevel: 'YES',
+              template: null,
             };
 
             const field = d.value! as string;
