@@ -6,6 +6,7 @@ I store:
 - mute role ID
 - exempt user IDs
 - exempt role IDs
+- muted user IDs
 
 **The bot does __not__ store any PII**
 
