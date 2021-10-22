@@ -7,13 +7,10 @@ https://discord.com/oauth2/authorize?client_id=892420397570592768&scope=bot%20ap
 ### Notify ###
 Whether or not to notify offenders via DM.
 
-Always
-: Send a notification regardless of whether or not an action is taken, including
+Always | Send a notification regardless of whether or not an action is taken, including
 exempt members and roles to let the know they sent a known anti-phishing link.
 *ignores links sent in exempt channels*.
-
-Yes
-: Send a notification in the offender's DM unless they are exempt.
+Yes |  Send a notification in the offender's DM unless they are exempt.
 
 No
 : Do not notify the offender.
