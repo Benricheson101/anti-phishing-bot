@@ -62,7 +62,7 @@ export class ConfigCommand extends Command {
         {
           name: 'mute_role',
           description:
-            'Ping a role when a phishing link is posted. Note: requires a log chanel',
+            'The role to give users when `action` is set to `MUTE`',
           type: ApplicationCommandOptionType.Role,
         },
         {
