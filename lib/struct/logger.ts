@@ -1,6 +1,6 @@
-import {GuildConfigs} from '@prisma/client';
-import {GuildChannel, ThreadChannel, User} from 'discord.js';
-import {Client} from './client';
+import { GuildConfigs } from "@prisma/client";
+import { GuildChannel, ThreadChannel, User } from "discord.js";
+import { Client } from "./client";
 
 export class Logger {
   constructor(private client: Client) {}
@@ -9,6 +9,7 @@ export class Logger {
     guildId: string,
     user: User,
     domain: string,
+    channelSentIn: GuildChannel,
     taken: string[],
     failed: string[]
   ) {
@@ -20,8 +21,15 @@ export class Logger {
       }
 
       await channel.send({
-        content: this.genLogMessage(user, domain, taken, failed),
-        allowedMentions: {parse: []},
+        content: this.genLogMessage(
+          user,
+          domain,
+          taken,
+          channelSentIn,
+          guildId,
+          failed
+        ),
+        allowedMentions: { parse: [] },
       });
     } catch {
       //
@@ -44,24 +52,43 @@ export class Logger {
     return [channel, guild];
   }
 
-  private genLogMessage(
+  private async genLogMessage(
     user: User,
     domain: string,
     taken: string[],
+    channel: string,
+    guildid: string,
     failed: string[]
   ) {
     if (taken.length) {
-      return `:hammer: Phishing URL sent by ${user} (**${user.tag}**, \`${
-        user.id
-      }\`). Actions: ${taken.map(a => `\`${a}\``).join(', ')} ${
+      let defaultMessage = `:hammer: Phishing URL sent by ${user} (**${
+        user.tag
+      }**, \`${user.id}\`). Actions: ${taken
+        .map((a) => `\`${a}\``)
+        .join(", ")} ${
         failed.length
-          ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
-          : ''
+          ? ":warning: Failed: " + failed.map((a) => `\`${a}\``).join(", ")
+          : ""
       }\n> \`${domain}\``;
+      let message: string = defaultMessage;
+      const guildConfig = await this.client.db.guildConfigs.get(guildid);
+      if (guildConfig.logFormat && guildConfig.logFormat.length > 0) {
+        let logFormat = guildConfig.logFormat;
+        let actions = taken.map((a) => `\`${a}\``).join(", ");
+        message = logFormat
+          .replace("{actions}", actions)
+          .replace("{domain}", domain)
+          .replace("{offender}", `<@!${user.id.toString()}>`)
+          .replace("{offenderTag}", user.tag)
+          .replace("{offenderId}", user.id.toString())
+          .replace("{channel}", `<#${channel}>`)
+          .replace("{newline}", "\n");
+      }
+      return message;
     } else {
       return `:warning: Unable to execute action ${failed
-        .map(a => `\`${a}\``)
-        .join(', ')} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
+        .map((a) => `\`${a}\``)
+        .join(", ")} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
     }
   }
 }

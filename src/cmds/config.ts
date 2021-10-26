@@ -70,6 +70,11 @@ export class ConfigCommand extends Command {
           description: "Should users be DM'd when they are action'd",
           type: ApplicationCommandOptionType.Boolean,
         },
+        {
+          name: 'log_format',
+          description: 'Set a custom message to send in the log channel. Note: Requires a log channel',
+          type: ApplicationCommandOptionType.String
+        }
       ],
     },
     {
