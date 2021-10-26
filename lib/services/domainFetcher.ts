@@ -30,8 +30,6 @@ export class DomainFetcher {
       await this.client.metrics.updateDomainCount();
     } catch (e) {
       console.error('Unable to fetch domains:', e);
-
-      throw e;
     }
   }
 
