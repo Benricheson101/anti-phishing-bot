@@ -61,8 +61,7 @@ export class ConfigCommand extends Command {
         },
         {
           name: 'mute_role',
-          description:
-            'The role to give users when `action` is set to `MUTE`',
+          description: 'The role to give users when `action` is set to `MUTE`',
           type: ApplicationCommandOptionType.Role,
         },
         {
@@ -72,9 +71,10 @@ export class ConfigCommand extends Command {
         },
         {
           name: 'log_format',
-          description: 'Set a custom message to send in the log channel. Note: Requires a log channel',
-          type: ApplicationCommandOptionType.String
-        }
+          description:
+            'Set a custom message to send in the log channel. Note: Requires a log channel',
+          type: ApplicationCommandOptionType.String,
+        },
       ],
     },
     {

@@ -1,6 +1,6 @@
-import { GuildConfigs } from "@prisma/client";
-import { GuildChannel, ThreadChannel, User } from "discord.js";
-import { Client } from "./client";
+import {GuildConfigs} from '@prisma/client';
+import {GuildChannel, ThreadChannel, User} from 'discord.js';
+import {Client} from './client';
 
 export class Logger {
   constructor(private client: Client) {}
@@ -29,7 +29,7 @@ export class Logger {
           guildId,
           failed
         ),
-        allowedMentions: { parse: [] },
+        allowedMentions: {parse: []},
       });
     } catch {
       //
@@ -61,34 +61,32 @@ export class Logger {
     failed: string[]
   ) {
     if (taken.length) {
-      let defaultMessage = `:hammer: Phishing URL sent by ${user} (**${
+      const defaultMessage = `:hammer: Phishing URL sent by ${user} (**${
         user.tag
-      }**, \`${user.id}\`). Actions: ${taken
-        .map((a) => `\`${a}\``)
-        .join(", ")} ${
+      }**, \`${user.id}\`). Actions: ${taken.map(a => `\`${a}\``).join(', ')} ${
         failed.length
-          ? ":warning: Failed: " + failed.map((a) => `\`${a}\``).join(", ")
-          : ""
+          ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
+          : ''
       }\n> \`${domain}\``;
       let message: string = defaultMessage;
       const guildConfig = await this.client.db.guildConfigs.get(guildid);
       if (guildConfig.logFormat && guildConfig.logFormat.length > 0) {
-        let logFormat = guildConfig.logFormat;
-        let actions = taken.map((a) => `\`${a}\``).join(", ");
+        const logFormat = guildConfig.logFormat;
+        const actions = taken.map(a => `\`${a}\``).join(', ');
         message = logFormat
-          .replace("{actions}", actions)
-          .replace("{domain}", domain)
-          .replace("{offender}", `<@!${user.id.toString()}>`)
-          .replace("{offenderTag}", user.tag)
-          .replace("{offenderId}", user.id.toString())
-          .replace("{channel}", `<#${channel}>`)
-          .replace("{newline}", "\n");
+          .replace('{actions}', actions)
+          .replace('{domain}', domain)
+          .replace('{offender}', `<@!${user.id.toString()}>`)
+          .replace('{offenderTag}', user.tag)
+          .replace('{offenderId}', user.id.toString())
+          .replace('{channel}', `<#${channel}>`)
+          .replace('{newline}', '\n');
       }
       return message;
     } else {
       return `:warning: Unable to execute action ${failed
-        .map((a) => `\`${a}\``)
-        .join(", ")} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
+        .map(a => `\`${a}\``)
+        .join(', ')} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
     }
   }
 }
