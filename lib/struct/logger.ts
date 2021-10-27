@@ -9,6 +9,7 @@ export class Logger {
     guildId: string,
     user: User,
     domain: string,
+    channelSentIn: GuildChannel,
     taken: string[],
     failed: string[]
   ) {
@@ -20,7 +21,14 @@ export class Logger {
       }
 
       await channel.send({
-        content: this.genLogMessage(user, domain, taken, failed),
+        content: this.genLogMessage(
+          user,
+          domain,
+          taken,
+          channelSentIn.id.toString(),
+          guildId,
+          failed
+        ),
         allowedMentions: {parse: []},
       });
     } catch {
@@ -44,20 +52,41 @@ export class Logger {
     return [channel, guild];
   }
 
-  private genLogMessage(
+  private async genLogMessage(
     user: User,
     domain: string,
     taken: string[],
+    channel: string,
+    guildid: string,
     failed: string[]
   ) {
     if (taken.length) {
-      return `:hammer: Phishing URL sent by ${user} (**${user.tag}**, \`${
-        user.id
-      }\`). Actions: ${taken.map(a => `\`${a}\``).join(', ')} ${
+      const defaultMessage = `:hammer: Phishing URL sent by ${user} (**${
+        user.tag
+      }**, \`${user.id}\`). Actions: ${taken.map(a => `\`${a}\``).join(', ')} ${
         failed.length
           ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
           : ''
       }\n> \`${domain}\``;
+      let message: string = defaultMessage;
+      const guildConfig = await this.client.db.guildConfigs.get(guildid);
+      if (guildConfig.logFormat && guildConfig.logFormat.length > 0) {
+        const logFormat = guildConfig.logFormat;
+        const actions = `${taken.map(a => `\`${a}\``).join(', ')} ${
+          failed.length
+            ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
+            : ''
+        }`
+        message = logFormat
+          .replace(/{actions}/g, actions)
+          .replace(/{domain}/g, domain)
+          .replace(/{offender}/g, `${user} (**${user.tag}**, \`${user.id}\`)`)
+          .replace(/{offenderTag}/g, user.tag)
+          .replace(/{offenderId}/g, user.id.toString())
+          .replace(/{channel}/g, `<#${channel}>`)
+          .replace(/{newline}/g, '\n');
+      }
+      return message;
     } else {
       return `:warning: Unable to execute action ${failed
         .map(a => `\`${a}\``)

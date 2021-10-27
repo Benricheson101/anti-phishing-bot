@@ -21,6 +21,7 @@ model GuildConfigs {
   logChannel String?      @map("log_channel")
   muteRole   String?      @map("mute_role")
   notify     Boolean?     @default(false)
+  logFormat  String?      @map("log_format")
   exemptions Exemptions[]
 }
 
