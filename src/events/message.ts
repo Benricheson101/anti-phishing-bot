@@ -5,34 +5,78 @@ export class MessageCreateEvent extends Event {
   name = 'messageCreate';
 
   async run(msg: Message) {
-    const {content, member} = msg;
-
+    const {content, member, embeds} = msg;
+    const embedStrings = []
     if (!member || msg.author.bot || msg.channel.type === 'DM') {
       return;
     }
+    for(const embed of embeds){
+      if(embed.fields){
+        for(const field of embed.fields){
+          embedStrings.push(field?.name)
+          embedStrings.push(field?.value)
+        }
+      }
+        embedStrings.push(embed?.author?.name)
+        embedStrings.push(embed?.author?.url)
+        embedStrings.push(embed?.author?.iconURL)
+        embedStrings.push(embed?.description)
+        embedStrings.push(embed?.footer?.text)
+        embedStrings.push(embed?.footer?.iconURL)
+        embedStrings.push(embed?.title)
+        embedStrings.push(embed?.url)
+    }
+    const embedString:string = embedStrings.join(' ').toString()
 
     let matches;
+    let matches2;
+    let found = false
+    let guildConfig = null
+    let hitDomain = null
     if (
-      (matches = [...content.matchAll(DOMAIN_REGEX)].map(d => d[0])) &&
-      matches.length
+      ((matches = [...content.matchAll(DOMAIN_REGEX)].map(d => d[0])) &&
+      matches.length) && !found
     ) {
       const toCheck = matches.map(d => msg.client.db.domains.exists(d));
-
       const checked = await Promise.all(toCheck);
       const trueAt = checked.indexOf(true);
-
       if (trueAt !== -1) {
-        const hitDomain = matches[trueAt];
+        hitDomain = matches[trueAt];
 
         this.client.metrics.addDomainHit(hitDomain);
         await this.client.db.domains.hit(hitDomain);
 
         if (!(await msg.client.db.exemptions.isExempt(msg.member!))) {
-          const guildConfig = await msg.client.db.guildConfigs.get(
+          guildConfig = await msg.client.db.guildConfigs.get(
             msg.guild!.id
           );
+          found = true
+        }
+      }
+    }
+    if (
+      ((matches2 = [embedString.matchAll(DOMAIN_REGEX)].map(d => d[0])) &&
+      matches.length) && !found
+    ) {
+      const toCheck2 = matches2?.map(d => msg.client.db.domains.exists(d));
+      const checked2 = await Promise.all(toCheck2);
+      const trueAt2 = checked2.indexOf(true);
+      if (trueAt2 !== -1) {
+        hitDomain = matches2[trueAt2];
 
-          const actionsTaken: string[] = [];
+        this.client.metrics.addDomainHit(hitDomain);
+        await this.client.db.domains.hit(hitDomain);
+
+        if (!(await msg.client.db.exemptions.isExempt(msg.member!))) {
+          guildConfig = await msg.client.db.guildConfigs.get(
+            msg.guild!.id
+          );
+          found = true
+        }
+      }
+    }
+    if(found){
+      const actionsTaken: string[] = [];
           const actionsFailed: string[] = [];
           try {
             if (guildConfig) {
@@ -134,8 +178,6 @@ export class MessageCreateEvent extends Event {
           } catch (e) {
             console.error(e);
           }
-        }
-      }
     }
   }
 }
