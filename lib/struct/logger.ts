@@ -72,15 +72,19 @@ export class Logger {
       const guildConfig = await this.client.db.guildConfigs.get(guildid);
       if (guildConfig.logFormat && guildConfig.logFormat.length > 0) {
         const logFormat = guildConfig.logFormat;
-        const actions = taken.map(a => `\`${a}\``).join(', ');
+        const actions = `${taken.map(a => `\`${a}\``).join(', ')} ${
+          failed.length
+            ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
+            : ''
+        }`
         message = logFormat
           .replace(/{actions}/g, actions)
           .replace(/{domain}/g, domain)
-          .replace(/{offender}/g, `<@!${user.id.toString()}>`)
+          .replace(/{offender}/g, `${user} (**${user.tag}**, \`${user.id}\`)`)
           .replace(/{offenderTag}/g, user.tag)
           .replace(/{offenderId}/g, user.id.toString())
           .replace(/{channel}/g, `<#${channel}>`)
-          .replace(/{{newline}/g, '\n');
+          .replace(/{newline}/g, '\n');
       }
       return message;
     } else {
