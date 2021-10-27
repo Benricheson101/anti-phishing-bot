@@ -25,7 +25,7 @@ export class Logger {
           user,
           domain,
           taken,
-          channelSentIn,
+          channelSentIn.id.toString(),
           guildId,
           failed
         ),
@@ -74,13 +74,13 @@ export class Logger {
         const logFormat = guildConfig.logFormat;
         const actions = taken.map(a => `\`${a}\``).join(', ');
         message = logFormat
-          .replace('{actions}', actions)
-          .replace('{domain}', domain)
-          .replace('{offender}', `<@!${user.id.toString()}>`)
-          .replace('{offenderTag}', user.tag)
-          .replace('{offenderId}', user.id.toString())
-          .replace('{channel}', `<#${channel}>`)
-          .replace('{newline}', '\n');
+          .replace(/{actions}/g, actions)
+          .replace(/{domain}/g, domain)
+          .replace(/{offender}/g, `<@!${user.id.toString()}>`)
+          .replace(/{offenderTag}/g, user.tag)
+          .replace(/{offenderId}/g, user.id.toString())
+          .replace(/{channel}/g, `<#${channel}>`)
+          .replace(/{{newline}/g, '\n');
       }
       return message;
     } else {
