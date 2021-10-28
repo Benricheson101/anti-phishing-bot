@@ -335,14 +335,14 @@ export class ConfigCommand extends Command {
             const {channels, roles, users, totals} = exemptions.reduce(
               (
                 x: {
-                  channels: string
-                  roles: string
-                  users: string
+                  channels: string;
+                  roles: string;
+                  users: string;
                   totals: {
-                    channels: number
-                    roles: number
-                    users: number
-                  }
+                    channels: number;
+                    roles: number;
+                    users: number;
+                  };
                 },
                 {id, kind}
               ) => {
