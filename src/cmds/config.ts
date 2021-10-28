@@ -26,14 +26,17 @@ export class ConfigCommand extends Command {
           description: 'Should phishing messages be deleted?',
           type: ApplicationCommandOptionType.String,
           choices: [
-            { name: 'Always',
+            {
+              name: 'Always',
               value: 'ALWAYS',
             },
-            { name: 'Yes',
+            {
+              name: 'Yes',
               value: 'YES',
             },
-            { name: 'No',
-              value: 'NO'
+            {
+              name: 'No',
+              value: 'NO',
             },
           ],
         },
@@ -58,7 +61,8 @@ export class ConfigCommand extends Command {
               name: 'Mute',
               value: 'MUTE',
             },
-            { name: 'StickyMute',
+            {
+              name: 'StickyMute',
               value: 'STICKYMUTE',
             },
             {
@@ -72,20 +76,24 @@ export class ConfigCommand extends Command {
           description: 'The channel where logs will be posted',
           type: ApplicationCommandOptionType.Channel,
         },
-        { name: 'log_level',
+        {
+          name: 'log_level',
           description: 'The level of logging',
           type: ApplicationCommandOptionType.String,
           choices: [
-            { name: 'Always',
+            {
+              name: 'Always',
               value: 'ALWAYS',
             },
-            { name: 'Yes',
+            {
+              name: 'Yes',
               value: 'YES',
             },
-            { name: 'No',
+            {
+              name: 'No',
               value: 'NO',
             },
-          ]
+          ],
         },
         {
           name: 'mute_role',
@@ -97,22 +105,27 @@ export class ConfigCommand extends Command {
           description: "Should users be DM'd when they are action'd",
           type: ApplicationCommandOptionType.String,
           choices: [
-            { name: 'Always',
+            {
+              name: 'Always',
               value: 'ALWAYS',
             },
-            { name: 'Yes',
+            {
+              name: 'Yes',
               value: 'YES',
             },
-            { name: 'No',
+            {
+              name: 'No',
               value: 'NO',
             },
-          ]
+          ],
         },
-/*        { name: 'template',
-          description: 'The message template to send to the users',
-          type: ApplicationCommandOptionType.String,
-        },
-*/     ],
+        /*{
+            name: 'template',
+            description: 'The message template to send to the users',
+            type: ApplicationCommandOptionType.String,
+          },
+        */
+      ],
     },
     {
       name: 'exemptions',
@@ -130,7 +143,8 @@ export class ConfigCommand extends Command {
               type: ApplicationCommandOptionType.String,
               required: false,
               choices: [
-                { name: 'Channel',
+                {
+                  name: 'Channel',
                   value: 'CHANNEL',
                 },
                 {
@@ -156,7 +170,8 @@ export class ConfigCommand extends Command {
               type: ApplicationCommandOptionType.String,
               required: true,
               choices: [
-                { name: 'Channel',
+                {
+                  name: 'Channel',
                   value: 'CHANNEL',
                 },
                 {
@@ -169,9 +184,11 @@ export class ConfigCommand extends Command {
                 },
               ],
             },
-            { name: 'channel',
-              description: 'The channel to exempt. Only usable when `kind: Channel`',
-              type: ApplicationCommandOptionType.Channel
+            {
+              name: 'channel',
+              description:
+                'The channel to exempt. Only usable when `kind: Channel`',
+              type: ApplicationCommandOptionType.Channel,
             },
             {
               name: 'role',
@@ -197,7 +214,8 @@ export class ConfigCommand extends Command {
               type: ApplicationCommandOptionType.String,
               required: true,
               choices: [
-                { name: 'Channel',
+                {
+                  name: 'Channel',
                   value: 'CHANNEL',
                 },
                 {
@@ -210,7 +228,8 @@ export class ConfigCommand extends Command {
                 },
               ],
             },
-            { name: 'channel',
+            {
+              name: 'channel',
               description:
                 'The exemption to remove. Only usable when `kind: Channel`',
               type: ApplicationCommandOptionType.Channel,
@@ -242,7 +261,8 @@ export class ConfigCommand extends Command {
           type: ApplicationCommandOptionType.String,
           required: true,
           choices: [
-            { name: 'notify',
+            {
+              name: 'notify',
               value: 'notify',
             },
             {
@@ -257,17 +277,19 @@ export class ConfigCommand extends Command {
               name: 'log_channel',
               value: 'logChannel',
             },
-            { name: 'log_level',
-              value: 'logLevel'
+            {
+              name: 'log_level',
+              value: 'logLevel',
             },
             {
               name: 'mute_role',
               value: 'muteRole',
             },
-/*            { name: 'template',
-              value: 'template',
-            }
-*/          ],
+            /*{
+                name: 'template',
+                value: 'template',
+              }*/
+          ],
         },
       ],
     },
@@ -309,22 +331,25 @@ export class ConfigCommand extends Command {
               i.guild.id,
               filter
             );
-            
-            const { channels, roles, users, totals } = exemptions.reduce (( 
-              x: {
-                channels: string,
-                roles: string,
-                users: string,
-                totals: {
-                  channels: number,
-                  roles: number,
-                  users: number
-                }
-              }, { id, kind }) => {
+
+            const {channels, roles, users, totals} = exemptions.reduce(
+              (
+                x: {
+                  channels: string
+                  roles: string
+                  users: string
+                  totals: {
+                    channels: number
+                    roles: number
+                    users: number
+                  }
+                },
+                {id, kind}
+              ) => {
                 switch (kind) {
                   case 'CHANNEL': {
                     x.totals.channels++;
-                    x.channels = `${x.channels}\n- ${id}`
+                    x.channels = `${x.channels}\n- ${id}`;
                     break;
                   }
                   case 'ROLE': {
@@ -338,17 +363,19 @@ export class ConfigCommand extends Command {
                     break;
                   }
                 }
-                return x
+                return x;
               },
               {
                 channels: '',
                 roles: '',
-                users:'',
+                users: '',
                 totals: {
                   channels: 0,
                   roles: 0,
-                  users: 0
-                 }});
+                  users: 0,
+                },
+              }
+            );
 
             const msg = `\`\`\`md
             => Total Exemptions: ${exemptions.length}

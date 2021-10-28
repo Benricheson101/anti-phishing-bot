@@ -7,31 +7,39 @@ export class MessageCreateEvent extends Event {
 
   async run(msg: Message) {
     const {content, member} = msg;
-    if (!member || msg.author.bot || !msg.guild) { return; }
-   
-    const channel = msg.channel as TextChannel;
-    
-    let matches = [...content.matchAll(DOMAIN_REGEX)].map(d => d[0]);
-    if (!matches || !matches.length) { return; }
-
-    const hits = await this.client.db.domains.check(matches);
-    if (!hits || !hits.length) { return; }
-
-    const config = await this.client.db.guildConfigs.get(msg.guildId!);
-    if (!config) { 
-      this.client.db.guildConfigs.add(msg.guildId!)  
-      return; 
+    if (!member || msg.author.bot || !msg.guild) {
+      return;
     }
 
-    const actionsTaken: string[] = []
-    const actionsFailed: string[] = []
+    const channel = msg.channel as TextChannel;
+
+    const matches = [...content.matchAll(DOMAIN_REGEX)].map(d => d[0]);
+    if (!matches || !matches.length) {
+      return;
+    }
+
+    const hits = await this.client.db.domains.check(matches);
+    if (!hits || !hits.length) {
+      return;
+    }
+
+    const config = await this.client.db.guildConfigs.get(msg.guildId!);
+    if (!config) {
+      this.client.db.guildConfigs.add(msg.guildId!);
+      return;
+    }
+
+    const actionsTaken: string[] = [];
+    const actionsFailed: string[] = [];
 
     const exemption = await this.client.db.exemptions.checkExempt(msg);
 
     let dm;
     let res;
-    let note = hits.reduce((t,d) => `${t}\n\`${d}\``,
-      `You have posted a known **Phishing** link in #${channel.name} on ${msg.guild.name}\n\nDOMAIN/S:`);
+    const note = hits.reduce(
+      (t, d) => `${t}\n\`${d}\``,
+      `You have posted a known **Phishing** link in #${channel.name} on ${msg.guild.name}\n\nDOMAIN/S:`
+    );
 
     try {
       switch (config.notify) {
@@ -48,7 +56,7 @@ export class MessageCreateEvent extends Event {
             res = await dm.send(note);
             dm.sendTyping();
           }
-        break;
+          break;
         }
       }
     } catch (e) {
@@ -57,8 +65,7 @@ export class MessageCreateEvent extends Event {
     }
 
     try {
-      switch (config.delete)
-      {
+      switch (config.delete) {
         case 'ALWAYS': {
           if (exemption !== 'CHANNEL') {
             if (!msg.deletable) {
@@ -95,8 +102,10 @@ export class MessageCreateEvent extends Event {
               actionsFailed.push('MUTE');
               break;
             }
-            await member.roles.add (config.muteRole, 
-              `Anti-Phishing Protection URL: ${hits[0]}`);
+            await member.roles.add(
+              config.muteRole,
+              `Anti-Phishing Protection URL: ${hits[0]}`
+            );
             actionsTaken.push('MUTE');
             break;
           }
@@ -106,10 +115,12 @@ export class MessageCreateEvent extends Event {
               actionsFailed.push('STICKYMUTE');
               break;
             }
-            await member.roles.add ( config.muteRole,
-              `Anti-Phishing Protection URL: ${hits[0]}`);
+            await member.roles.add(
+              config.muteRole,
+              `Anti-Phishing Protection URL: ${hits[0]}`
+            );
             await this.client.db.muted.add(member);
-            actionsTaken.push('STICKYMUTE')
+            actionsTaken.push('STICKYMUTE');
             break;
           }
 
@@ -128,17 +139,20 @@ export class MessageCreateEvent extends Event {
               actionsTaken.push('SOFTBAN');
               break;
             }
-            await member.ban({ 
-              reason: `[SOFTBAN] Anti-Phishing Protection URL: ${hits[0]}` 
+            await member.ban({
+              reason: `[SOFTBAN] Anti-Phishing Protection URL: ${hits[0]}`,
             });
-            await new Promise (r => {
-              setTimeout (()=>{
-                r (msg.guild!.members.unban(member.id,
-                  `[SOFTBAN] Anti-Phishing Protection URL: ${hits[0]}`
-                ));
-              },5000);
+            await new Promise(r => {
+              setTimeout(() => {
+                r(
+                  msg.guild!.members.unban(
+                    member.id,
+                    `[SOFTBAN] Anti-Phishing Protection URL: ${hits[0]}`
+                  )
+                );
+              }, 5000);
             });
-            actionsTaken.push('SOFTBAN')
+            actionsTaken.push('SOFTBAN');
             break;
           }
 
@@ -148,7 +162,7 @@ export class MessageCreateEvent extends Event {
               break;
             }
             await member.ban({
-              reason: `Anti-Phishing Protection URL: ${hits[0]}`
+              reason: `Anti-Phishing Protection URL: ${hits[0]}`,
             });
             actionsTaken.push('BAN');
             break;
@@ -159,27 +173,37 @@ export class MessageCreateEvent extends Event {
         console.error(e);
       }
     }
-    
+
     if (actionsTaken.length && dm && res) {
-      await res.edit(
-        actionsTaken.reduce((t,a)=>`${t}\n\`${a}\``,
-          `${note}\n\nACTION/S:`)
-      )
-        .then(()=>actionsTaken.unshift('NOTIFY'))
-        .catch((e)=>{
+      await res
+        .edit(
+          actionsTaken.reduce(
+            (t, a) => `${t}\n\`${a}\``,
+            `${note}\n\nACTION/S:`
+          )
+        )
+        .then(() => actionsTaken.unshift('NOTIFY'))
+        .catch(() => {
           actionsFailed.unshift('NOTIFY');
           // console.error (e);
         });
     }
 
-    if ((actionsFailed.length || config.logLevel === 'ALWAYS') && !actionsTaken.length) {
+    if (
+      (actionsFailed.length || config.logLevel === 'ALWAYS') &&
+      !actionsTaken.length
+    ) {
       actionsTaken.push('NONE');
     }
 
-    if ( config.logLevel !== 'NO' && config.logChannel && 
-        ( actionsTaken.length || actionsFailed.length )) {
-      this.client.logger.action(msg, config, hits, actionsTaken, actionsFailed)
-        .catch(console.error)
+    if (
+      config.logLevel !== 'NO' &&
+      config.logChannel &&
+      (actionsTaken.length || actionsFailed.length)
+    ) {
+      this.client.logger
+        .action(msg, config, hits, actionsTaken, actionsFailed)
+        .catch(console.error);
     }
   }
 }

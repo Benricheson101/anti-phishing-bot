@@ -10,24 +10,25 @@ export class MutedStore {
         id: member.id,
         guild: {
           connectOrCreate: {
-            where: { id: member.guild.id },
-            create: { id: member.guild.id },
+            where: {id: member.guild.id},
+            create: {id: member.guild.id},
           },
         },
       },
     });
   }
-  
+
   async get(guildId: string, id: string): Promise<Muted | null> {
     return this.prisma.muted.findUnique({
-      where: { id_guildId: {id, guildId}},
+      where: {id_guildId: {id, guildId}},
     });
   }
 
-  async delete(guildId: string, id: string): Promise <Muted | null> {
-    try { return this.prisma.muted.delete ({ 
-      where: { id_guildId: { id, guildId }}
-    });
+  async delete(guildId: string, id: string): Promise<Muted | null> {
+    try {
+      return this.prisma.muted.delete({
+        where: {id_guildId: {id, guildId}},
+      });
     } catch (e) {
       return null;
     }

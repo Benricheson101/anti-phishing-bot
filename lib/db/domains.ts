@@ -27,11 +27,12 @@ export class DomainStore {
   }
 
   async check(domains: string[]): Promise<string[]> {
-    const matches = await this.prisma.domains.findMany({where: { domain: { in: domains}}})
-      .then (r=>r.map(d=>d.domain));
+    const matches = await this.prisma.domains
+      .findMany({where: {domain: {in: domains}}})
+      .then(r => r.map(d => d.domain));
     this.prisma.domains.updateMany({
-      where: { domain: { in: domains }},
-      data: { hits: { increment: 1 } },
+      where: {domain: {in: domains}},
+      data: {hits: {increment: 1}},
     });
     return matches;
   }
