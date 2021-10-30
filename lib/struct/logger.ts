@@ -1,5 +1,11 @@
 import {GuildConfigs} from '@prisma/client';
-import {GuildChannel, ThreadChannel, User} from 'discord.js';
+import {
+  GuildChannel,
+  ThreadChannel,
+  TextChannel,
+  NewsChannel,
+  User,
+} from 'discord.js';
 import {Client} from './client';
 
 export class Logger {
@@ -9,7 +15,7 @@ export class Logger {
     guildId: string,
     user: User,
     domain: string,
-    channelSentIn: GuildChannel,
+    channelSentIn: GuildChannel | ThreadChannel | TextChannel | NewsChannel,
     taken: string[],
     failed: string[]
   ) {
@@ -21,7 +27,7 @@ export class Logger {
       }
 
       await channel.send({
-        content: this.genLogMessage(
+        content: await this.genLogMessage(
           user,
           domain,
           taken,
@@ -70,13 +76,17 @@ export class Logger {
       }\n> \`${domain}\``;
       let message: string = defaultMessage;
       const guildConfig = await this.client.db.guildConfigs.get(guildid);
-      if (guildConfig.logFormat && guildConfig.logFormat.length > 0) {
+      if (
+        guildConfig &&
+        guildConfig.logFormat &&
+        guildConfig.logFormat.length > 0
+      ) {
         const logFormat = guildConfig.logFormat;
         const actions = `${taken.map(a => `\`${a}\``).join(', ')} ${
           failed.length
             ? ':warning: Failed: ' + failed.map(a => `\`${a}\``).join(', ')
             : ''
-        }`
+        }`;
         message = logFormat
           .replace(/{actions}/g, actions)
           .replace(/{domain}/g, domain)
