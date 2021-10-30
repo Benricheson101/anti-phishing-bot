@@ -114,7 +114,6 @@ export class MessageCreateEvent extends Event {
                 msg.guild!.id,
                 msg.author,
                 hitDomain,
-                msg.channel, //Assuming msg is a ChannelMessage object
                 actionsTaken,
                 actionsFailed
               );

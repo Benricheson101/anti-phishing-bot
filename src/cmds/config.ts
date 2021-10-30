@@ -61,19 +61,14 @@ export class ConfigCommand extends Command {
         },
         {
           name: 'mute_role',
-          description: 'The role to give users when `action` is set to `MUTE`',
+          description:
+            'The role to give users when `action` is set to `MUTE`',
           type: ApplicationCommandOptionType.Role,
         },
         {
           name: 'notify',
           description: "Should users be DM'd when they are action'd",
           type: ApplicationCommandOptionType.Boolean,
-        },
-        {
-          name: 'log_format',
-          description:
-            'Set a custom message to send in the log channel. Note: Requires a log channel',
-          type: ApplicationCommandOptionType.String,
         },
       ],
     },
