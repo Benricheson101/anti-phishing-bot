@@ -29,6 +29,12 @@ export class Metrics {
     help: "ms ping to discord's gateway",
   });
 
+  readonly domainFetches = new Gauge({
+    name: 'domain_fetches',
+    help: 'increments when domains are fetched',
+    labelNames: ['count', 'success'],
+  });
+
   constructor(private client: Client) {
     collectDefaultMetrics();
   }
@@ -41,9 +47,8 @@ export class Metrics {
     this.domainHits.inc({domain});
   }
 
-  async updateDomainCount() {
-    const count = await this.client.db.domains.count();
-    this.domainCount.set(count || 0);
+  updateDomainCount(count: number) {
+    this.domainCount.set(count);
   }
 
   updateGuildCount() {
@@ -52,5 +57,9 @@ export class Metrics {
 
   updateGatewayPing() {
     this.gatewayPing.set(this.client.ws.ping);
+  }
+
+  domainsFetched(success: boolean, n?: number) {
+    this.domainFetches.inc({success: String(success), count: n});
   }
 }

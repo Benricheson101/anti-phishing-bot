@@ -7,13 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Domains {
-  domain    String   @unique
-  hits      Int      @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-}
-
 model GuildConfigs {
   id         String       @unique
   delete     Boolean      @default(true)

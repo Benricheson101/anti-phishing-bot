@@ -61,8 +61,7 @@ export class ConfigCommand extends Command {
         },
         {
           name: 'mute_role',
-          description:
-            'The role to give users when `action` is set to `MUTE`',
+          description: 'The role to give users when `action` is set to `MUTE`',
           type: ApplicationCommandOptionType.Role,
         },
         {
