@@ -21,7 +21,9 @@ export class DomainManager {
     try {
       const domainList = await getScamDomains();
 
-      this.domains = new Set(domainList);
+      if (domainList.length) {
+        this.domains = new Set(domainList);
+      }
 
       this.client.metrics.updateDomainCount(this.domains.size);
       this.client.metrics.domainsFetched(true, domainList.length);
