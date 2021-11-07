@@ -141,8 +141,6 @@ async function getLastRedirectPage(
 
   const u = `https://${domain[1]}/${domain[2] || ''}`;
 
-  console.log(u);
-
   try {
     const {redirected, url} = await fetch(u, {
       method: 'HEAD',
