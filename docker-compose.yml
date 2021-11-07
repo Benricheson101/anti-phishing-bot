@@ -8,6 +8,9 @@ services:
     depends_on:
       - 'db'
       - 'prometheus'
+    deploy:
+      restart_policy:
+        condition: 'on-failure'
 
   db:
     command: "postgres -c listen_addresses='*'"

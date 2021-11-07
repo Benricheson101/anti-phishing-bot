@@ -141,13 +141,17 @@ async function getLastRedirectPage(
 
   const u = `https://${domain[1]}/${domain[2] || ''}`;
 
-  const {redirected, url} = await fetch(u, {
-    method: 'HEAD',
-    redirect: 'follow',
-  });
+  try {
+    const {redirected, url} = await fetch(u, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
 
-  if (redirected) {
-    return url;
+    if (redirected) {
+      return url;
+    }
+  } catch {
+    //
   }
 
   return;
