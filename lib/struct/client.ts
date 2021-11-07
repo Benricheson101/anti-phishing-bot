@@ -8,7 +8,6 @@ import readdir = promises.readdir;
 import {PrismaClient} from '@prisma/client';
 import {Logger} from './logger';
 import {Metrics} from './metric';
-// import {DomainList} from './domainList';
 
 export class Client extends DJSClient {
   metrics = new Metrics(this);
@@ -41,7 +40,6 @@ export class Client extends DJSClient {
     this.db = new Database(new PrismaClient());
     this.logger = new Logger(this);
     this.services = new ServiceManager(this);
-    // this.domains = await new DomainList().init();
 
     return this;
   }
