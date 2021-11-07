@@ -141,6 +141,8 @@ async function getLastRedirectPage(
 
   const u = `https://${domain[1]}/${domain[2] || ''}`;
 
+  console.log(u);
+
   try {
     const {redirected, url} = await fetch(u, {
       method: 'HEAD',
@@ -151,7 +153,15 @@ async function getLastRedirectPage(
       return url;
     }
   } catch {
-    //
+    try {
+      const {headers} = await request(u);
+      const location = headers.location;
+      if (location) {
+        return location;
+      }
+    } catch {
+      // FIXME: invalid domains end up here
+    }
   }
 
   return;
