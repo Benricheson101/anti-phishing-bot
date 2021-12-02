@@ -35,6 +35,12 @@ export class Metrics {
     labelNames: ['count', 'success'],
   });
 
+  readonly gatewayEvents = new Gauge({
+    name: 'gateway_events',
+    help: 'events received over the Discord gateway',
+    labelNames: ['event'],
+  });
+
   constructor(private client: Client) {
     collectDefaultMetrics();
   }
@@ -61,5 +67,10 @@ export class Metrics {
 
   domainsFetched(success: boolean, n?: number) {
     this.domainFetches.inc({success: String(success), count: n});
+  }
+
+  addGatewayEvent(event: string) {
+    console.log('Incrementing event:', event);
+    this.gatewayEvents.inc({event});
   }
 }
