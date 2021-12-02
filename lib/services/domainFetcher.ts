@@ -1,82 +1,166 @@
-import {request, RequestOptions} from 'https';
-import {URL} from 'url';
-import {Client} from '..';
+import {Client, DOMAIN_REGEX} from '..';
+import {fetch, request} from 'undici';
 
-const API_URL = new URL(process.env.API_URL!);
+export class DomainManager {
+  shorteners = new Set<string>();
+  domains = new Set<string>();
 
-const OPTIONS: RequestOptions = {
-  method: 'GET',
-  hostname: API_URL.hostname,
-  path: API_URL.pathname,
-  port: API_URL.port,
-};
-
-export class DomainFetcher {
-  attempts = 5;
+  maxAttempts = 5;
 
   failedAttempts = 0;
 
-  interval = 5 * 1_000 * 60; // 5 minutes
+  fetchInterval = 1_000 * 60 * 5; // 5 minutes
+  clearFailuresTimeout = 1_000 * 60 * 60; // 60 minutes
 
-  timeout?: NodeJS.Timeout;
+  fetchTimer?: NodeJS.Timeout;
+  clearFailuresTimer?: NodeJS.Timeout;
 
   constructor(private client: Client) {}
 
   async run() {
     try {
-      const domainList = await get(OPTIONS);
+      const domainList = await getScamDomains();
 
-      await this.client.db.domains.bulkAdd(domainList);
-      await this.client.metrics.updateDomainCount();
+      if (domainList.length) {
+        this.domains = new Set(domainList);
+      }
+
+      this.client.metrics.updateDomainCount(this.domains.size);
+      this.client.metrics.domainsFetched(true, domainList.length);
     } catch (e) {
       console.error('Unable to fetch domains:', e);
-    }
-  }
+      this.client.metrics.domainsFetched(false);
 
-  async up() {
-    try {
-      await this.run();
-      this.timeout = setInterval(this.run.bind(this), this.interval);
-    } catch (e) {
-      console.error('Error fetching domains:', e);
+      // Automatically stop the domain fetcher if the api errors 5 times in an hour
+      // Every time there is a failed request, the hour starts over. This should prevent
+      // the bot from making unnecessary requests if the api has gone down for a long period of time,
+      // while also accounting for short downtimes
 
-      if (this.failedAttempts++ >= this.attempts) {
+      this.failedAttempts++;
+      if (this.failedAttempts >= this.maxAttempts) {
         console.error(
           `DomainFetcher encountered ${this.failedAttempts} and has automatically shut down.`
         );
 
         this.down();
       }
+
+      if (this.clearFailuresTimer) {
+        clearInterval(this.clearFailuresTimer);
+      }
+
+      this.clearFailuresTimer = setTimeout(
+        (() => {
+          this.failedAttempts = 0;
+        }).bind(this),
+        this.fetchInterval
+      );
+    }
+  }
+
+  async up() {
+    try {
+      const shorteners = await getShorteners();
+      this.shorteners = new Set(shorteners);
+
+      await this.run();
+      this.fetchTimer = setInterval(this.run.bind(this), this.fetchInterval);
+    } catch (e) {
+      console.error('Error starting domain fetcher:', e);
     }
   }
 
   down() {
-    if (this.timeout) {
-      clearInterval(this.timeout);
-      this.timeout = undefined;
+    if (this.fetchTimer) {
+      console.log('Stopping automatic domain fetching.');
+      clearInterval(this.fetchTimer);
+      this.fetchTimer = undefined;
     }
+
+    if (this.clearFailuresTimer) {
+      clearInterval(this.clearFailuresTimer);
+    }
+  }
+
+  async test(msg: string): Promise<string[]> {
+    const domains = Array.from(msg.matchAll(DOMAIN_REGEX)).filter(
+      (d, i, self) => i === self.findIndex(a => a[0] === d[0])
+    );
+
+    const hasMatch = domains.filter(d => this.domains.has(d[1]));
+
+    if (hasMatch.length) {
+      return hasMatch.map(d => d[1]);
+    }
+
+    const isRedir = domains.filter(d => this.shorteners.has(d[1]));
+
+    if (isRedir.length) {
+      const redirected = await Promise.all(isRedir.map(getLastRedirectPage));
+      const redirectedUrls = redirected.filter(Boolean) as string[];
+      return Promise.all(
+        redirectedUrls.map(async a => (await this.test(a))[0])
+      ).then(a => a.filter(Boolean));
+    }
+
+    return [];
   }
 }
 
-function get(options: RequestOptions): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    try {
-      request(options, res => {
-        res.setEncoding('utf-8');
-        res.setTimeout(10_000);
+async function getScamDomains(): Promise<string[]> {
+  const {body, statusCode} = await request(process.env.API_URL!);
 
-        let data = '';
+  if (statusCode > 300 || statusCode < 200) {
+    throw new Error(`server responded with status: ${statusCode}`);
+  }
 
-        res
-          .on('data', d => (data += d))
-          .on('close', () => resolve(JSON.parse(data)))
-          .on('end', () => resolve(JSON.parse(data)))
-          .on('error', reject);
-      })
-        .on('error', reject)
-        .end();
-    } catch (e) {
-      reject(e);
+  return body.json();
+}
+
+async function getShorteners(): Promise<string[]> {
+  const shortenerList =
+    'https://raw.githubusercontent.com/nwunderly/ouranos/master/shorteners.txt';
+
+  const {body, statusCode} = await request(shortenerList);
+
+  if (statusCode > 300 || statusCode < 200) {
+    throw new Error(`server responded with status: ${statusCode}`);
+  }
+
+  const shorteners = await body.text();
+
+  return shorteners.split('\n').map(s => s.trim());
+}
+
+async function getLastRedirectPage(
+  domain: RegExpMatchArray
+): Promise<string | undefined> {
+  if (!domain[1] || !domain[2]) {
+    return;
+  }
+
+  const u = `https://${domain[1]}/${domain[2] || ''}`;
+
+  try {
+    const {redirected, url} = await fetch(u, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
+
+    if (redirected) {
+      return url;
     }
-  });
+  } catch {
+    try {
+      const {headers} = await request(u);
+      const location = headers.location;
+      if (location) {
+        return location;
+      }
+    } catch {
+      // FIXME: invalid domains end up here
+    }
+  }
+
+  return;
 }

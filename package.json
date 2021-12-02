@@ -21,7 +21,8 @@
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "prom-client": "^14.0.0"
+    "prom-client": "^14.0.0",
+    "undici": "^4.9.5"
   },
   "scripts": {
     "lint": "gts lint",

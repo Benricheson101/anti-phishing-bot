@@ -11,6 +11,6 @@ export class ReadyEvent extends Event {
     setInterval(() => {
       this.client.metrics.updateGuildCount();
       this.client.metrics.updateGatewayPing();
-    }, 1000);
+    }, 1_000 * 30);
   }
 }

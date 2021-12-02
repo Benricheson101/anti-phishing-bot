@@ -1,13 +1,12 @@
-import {Client, DomainFetcher} from '..';
+import {Client, DomainManager} from '..';
 
 export * from './domainFetcher';
 
 export class ServiceManager {
-  domainFetcher: DomainFetcher;
+  domainManager: DomainManager;
 
   constructor(client: Client) {
-    // TODO: can this be run in its own thread?
-    this.domainFetcher = new DomainFetcher(client);
-    this.domainFetcher.up();
+    this.domainManager = new DomainManager(client);
+    this.domainManager.up();
   }
 }

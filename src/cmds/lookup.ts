@@ -17,16 +17,12 @@ export class LookupCommand extends Command {
   async run(i: CommandInteraction) {
     const domain = i.options.getString('domain', true);
 
-    const info = await i.client.db.domains.get(domain);
+    const results = await this.client.services.domainManager.test(domain);
 
-    if (info) {
-      const msg = `
-      Domain: \`${info.domain}\`
-      Added: <t:${Math.floor(info.createdAt.getTime() / 1000)}:R>
-      Hits: \`${info.hits}\`
-      `
-        .replace(/^ +/gm, '')
-        .trim();
+    if (results.length) {
+      const msg = results
+        .map(d => `:white_check_mark: Domain: \`${d}\``)
+        .join('\n');
 
       await i.reply({content: msg, ephemeral: true});
     } else {
