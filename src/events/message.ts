@@ -38,17 +38,17 @@ export class MessageCreateEvent extends Event {
         if (guildConfig.notify) {
           try {
  if (guildConfig.delete) {
-              actions.push('DELETE');
+  actionsTaken.push('DELETE');
             }
 
             if (guildConfig.action !== ActionKind.NONE) {
-              actions.push(guildConfig.action);
+              actionsTaken.push(guildConfig.action);
             }
 
             await msg.member?.send({
               content: `Phishing link detected in **${
                 msg.guild!.name
-              }**. Actions taken: ${actions
+              }**. Actions taken: ${actionsTaken
                 .map(a => `\`${a}\``)
                 .join(', ')}\n> \`${hitDomain}\``,
             });
