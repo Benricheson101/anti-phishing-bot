@@ -25,16 +25,16 @@ export class Logger {
       if (!channel || !channel.isText() || !guild) {
         return;
       }
-
+      const content = await this.genLogMessage(
+        user,
+        domain,
+        taken,
+        channelSentIn.id.toString(),
+        guildId,
+        failed
+      );
       await channel.send({
-        content: await this.genLogMessage(
-          user,
-          domain,
-          taken,
-          channelSentIn.id.toString(),
-          guildId,
-          failed
-        ),
+        content: content,
         allowedMentions: {parse: []},
       });
     } catch {
@@ -76,11 +76,7 @@ export class Logger {
       }\n> \`${domain}\``;
       let message: string = defaultMessage;
       const guildConfig = await this.client.db.guildConfigs.get(guildid);
-      if (
-        guildConfig &&
-        guildConfig.logFormat &&
-        guildConfig.logFormat.length > 0
-      ) {
+      if (guildConfig?.logFormat?.length && guildConfig.logFormat.length > 0) {
         const logFormat = guildConfig.logFormat;
         const actions = `${taken.map(a => `\`${a}\``).join(', ')} ${
           failed.length
@@ -91,8 +87,11 @@ export class Logger {
           .replace(/{actions}/g, actions)
           .replace(/{domain}/g, domain)
           .replace(/{offender}/g, `${user} (**${user.tag}**, \`${user.id}\`)`)
-          .replace(/{offenderTag}/g, user.tag)
-          .replace(/{offenderId}/g, user.id.toString())
+          .replace(/{offender.ping}/g, `${user}`)
+          .replace(/{offender.tag}/g, `${user.tag}`)
+          .replace(/{offender.id}/g, `${user.id.toString()}`)
+          .replace(/{offender.username}/g, `${user.username}`)
+          .replace(/{offender.discriminator}/g, `${user.discriminator}`)
           .replace(/{channel}/g, `<#${channel}>`)
           .replace(/{newline}/g, '\n');
       }
