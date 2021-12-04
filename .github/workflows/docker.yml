@@ -31,8 +31,8 @@ jobs:
         uses: 'docker/metadata-action@v3'
         with:
           images: |
-            my-docker-hub-namespace/my-docker-hub-repository
-            ghcr.io/${{ github.repository }}
+            benricheson101/fish
+            ghcr.io/fish
 
       - name: 'Build and push Docker images'
         uses: 'docker/build-push-action@v2'
