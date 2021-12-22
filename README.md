@@ -18,7 +18,7 @@ Want to contribute and add a feature? Create a pull request :)
 **You are not sure if you have set up the bot right?**  
 Check your config with the command `/config get`  
 
-**Want to see more stats on the bot?**  
+**Want to see more stats about the bot?**  
 Use `/stats` to get a list of the top 10 domains of the last 24h that Fish saw.  
 Want more statistics? Check out https://fish.wah.wtf/d/owo/fish  
 
