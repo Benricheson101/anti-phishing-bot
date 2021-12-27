@@ -89,6 +89,7 @@ export class MessageCreateEvent extends Event {
             if (msg.member!.bannable) {
               await msg.member!.ban({
                 reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
+                days: 1,
               });
 
               await msg.guild!.members.unban(
