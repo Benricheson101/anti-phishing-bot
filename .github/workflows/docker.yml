@@ -34,7 +34,7 @@ jobs:
         with:
           images: |
             benricheson101/fish
-            ghcr.io/benricheson101/fish
+            ghcr.io/${{ github.repository }}
 
       - name: 'Build and push Docker images'
         uses: 'docker/build-push-action@v2'

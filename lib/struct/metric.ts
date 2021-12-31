@@ -5,7 +5,7 @@ export class Metrics {
   readonly domainHits = new Gauge({
     name: 'domain_hits',
     help: 'increments when a malicious domain is seen',
-    labelNames: ['domain'],
+    labelNames: ['domain', 'was_redirect'],
   });
 
   readonly guildCount = new Gauge({
@@ -16,6 +16,12 @@ export class Metrics {
   readonly domainCount = new Gauge({
     name: 'domain_count',
     help: 'the number of malicious domains the bot knows about',
+    labelNames: ['source'],
+  });
+
+  readonly shortenerCount = new Gauge({
+    name: 'shortener_count',
+    help: 'the number of url shorteners supported',
   });
 
   readonly commandUsed = new Gauge({
@@ -49,12 +55,16 @@ export class Metrics {
     this.commandUsed.labels(command, String(success)).inc();
   }
 
-  addDomainHit(domain: string) {
-    this.domainHits.inc({domain});
+  addDomainHit(domain: string, wasRedirect = false) {
+    this.domainHits.inc({domain, was_redirect: String(wasRedirect)});
   }
 
-  updateDomainCount(count: number) {
-    this.domainCount.set(count);
+  updateDomainCount(count: number, source: 'phish_api' | 'discord' | '' = '') {
+    this.domainCount.set({source}, count);
+  }
+
+  updateShortenerCount(count: number) {
+    this.shortenerCount.set(count);
   }
 
   updateGuildCount() {
@@ -70,7 +80,6 @@ export class Metrics {
   }
 
   addGatewayEvent(event: string) {
-    console.log('Incrementing event:', event);
     this.gatewayEvents.inc({event});
   }
 }
