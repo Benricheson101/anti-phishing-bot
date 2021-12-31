@@ -17,7 +17,7 @@ export class StatsCommand extends Command {
         service: string;
         domain: string;
         was_redirect: `${boolean}` | '';
-      }>('sum by (domain) (topk(10, increase(domain_hits[24h])))');
+      }>('topk(10, sum by (domain) (increase(domain_hits[24h])))');
 
       const hits24h = await queryPrometheus<{
         __name__: string;
