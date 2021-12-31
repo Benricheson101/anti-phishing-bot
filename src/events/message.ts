@@ -23,11 +23,11 @@ export class MessageCreateEvent extends Event {
       return;
     }
 
-    for (const match of matches) {
-      this.client.metrics.addDomainHit(match);
+    for (const {domain, isRedir} of matches) {
+      this.client.metrics.addDomainHit(domain, isRedir);
     }
 
-    const hitDomain = matches[0];
+    const hitDomain = matches[0].domain;
 
     const guildConfig = await msg.client.db.guildConfigs.get(msg.guild!.id);
 

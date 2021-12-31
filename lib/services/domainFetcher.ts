@@ -1,5 +1,9 @@
 import {Client, DOMAIN_REGEX} from '..';
 import {fetch, request} from 'undici';
+import {createHash} from 'crypto';
+
+const DISCORD_BAD_DOMAINS =
+  'https://cdn.discordapp.com/bad-domains/hashes.json';
 
 export class DomainManager {
   shorteners = new Set<string>();
@@ -19,9 +23,18 @@ export class DomainManager {
 
   async run() {
     try {
-      const domainList = await getScamDomains();
+      const domainList = await this.getScamDomains();
 
       if (domainList.length) {
+        // If the domain list size drops by a significant amount, it likely means the API died
+        // and a lot of domains are missing, so don't update the stored list
+        if (
+          this.domains.size > 0 &&
+          this.domains.size * 0.75 > domainList.length
+        ) {
+          return;
+        }
+
         this.domains = new Set(domainList);
       }
 
@@ -60,7 +73,7 @@ export class DomainManager {
 
   async up() {
     try {
-      const shorteners = await getShorteners();
+      const shorteners = await this.getShorteners();
       this.shorteners = new Set(shorteners);
 
       await this.run();
@@ -82,15 +95,20 @@ export class DomainManager {
     }
   }
 
-  async test(msg: string): Promise<string[]> {
+  async test(
+    msg: string,
+    redird = false
+  ): Promise<{domain: string; isRedir: boolean}[]> {
     const domains = Array.from(msg.matchAll(DOMAIN_REGEX)).filter(
       (d, i, self) => i === self.findIndex(a => a[0] === d[0])
     );
 
-    const hasMatch = domains.filter(d => this.domains.has(d[1]));
+    const hasMatch = domains.filter(d =>
+      this.domains.has(createHash('sha256').update(d[1]).digest('hex'))
+    );
 
     if (hasMatch.length) {
-      return hasMatch.map(d => d[1]);
+      return hasMatch.map(d => ({domain: d[1], isRedir: redird}));
     }
 
     const isRedir = domains.filter(d => this.shorteners.has(d[1]));
@@ -99,37 +117,63 @@ export class DomainManager {
       const redirected = await Promise.all(isRedir.map(getLastRedirectPage));
       const redirectedUrls = redirected.filter(Boolean) as string[];
       return Promise.all(
-        redirectedUrls.map(async a => (await this.test(a))[0])
+        redirectedUrls.map(async a => (await this.test(a, true))[0])
       ).then(a => a.filter(Boolean));
     }
 
     return [];
   }
-}
 
-async function getScamDomains(): Promise<string[]> {
-  const {body, statusCode} = await request(process.env.API_URL!);
+  async getScamDomains(): Promise<string[]> {
+    let domains: string[] = [];
+    const {body: phishApiBody, statusCode: phishApiStatusCode} = await request(
+      process.env.API_URL!
+    );
 
-  if (statusCode > 300 || statusCode < 200) {
-    throw new Error(`server responded with status: ${statusCode}`);
+    if (phishApiStatusCode > 300 || phishApiStatusCode < 200) {
+      throw new Error(`phish api responded with status: ${phishApiStatusCode}`);
+    }
+
+    const fromPhishApi: string[] = await phishApiBody.json();
+    domains = domains.concat(
+      fromPhishApi.map(d => createHash('sha256').update(d).digest('hex'))
+    );
+
+    const {body: discordDomainBody, statusCode: discordDomainStatusCode} =
+      await request(DISCORD_BAD_DOMAINS);
+
+    if (discordDomainStatusCode > 300 || discordDomainStatusCode < 200) {
+      throw new Error(
+        `discord bad domain list responded with status: ${discordDomainStatusCode}`
+      );
+    }
+
+    const fromDiscord: string[] = await discordDomainBody.json();
+    domains = domains.concat(fromDiscord);
+
+    this.client.metrics.updateDomainCount(fromPhishApi.length, 'phish_api');
+    this.client.metrics.updateDomainCount(fromDiscord.length, 'discord');
+
+    return domains;
   }
 
-  return body.json();
-}
+  async getShorteners(): Promise<string[]> {
+    const shortenerList =
+      'https://raw.githubusercontent.com/nwunderly/ouranos/master/shorteners.txt';
 
-async function getShorteners(): Promise<string[]> {
-  const shortenerList =
-    'https://raw.githubusercontent.com/nwunderly/ouranos/master/shorteners.txt';
+    const {body, statusCode} = await request(shortenerList);
 
-  const {body, statusCode} = await request(shortenerList);
+    if (statusCode > 300 || statusCode < 200) {
+      throw new Error(`shortener list responded with status: ${statusCode}`);
+    }
 
-  if (statusCode > 300 || statusCode < 200) {
-    throw new Error(`server responded with status: ${statusCode}`);
+    const shorteners = await body.text();
+    const s = shorteners.split('\n').map(s => s.trim());
+
+    this.client.metrics.updateShortenerCount(s.length);
+
+    return s;
   }
-
-  const shorteners = await body.text();
-
-  return shorteners.split('\n').map(s => s.trim());
 }
 
 async function getLastRedirectPage(
