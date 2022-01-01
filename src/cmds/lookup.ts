@@ -21,7 +21,7 @@ export class LookupCommand extends Command {
 
     if (results.length) {
       const msg = results
-        .map(d => `:white_check_mark: Domain: \`${d}\``)
+        .map(d => `:white_check_mark: Domain: \`${d.domain}\``)
         .join('\n');
 
       await i.reply({content: msg, ephemeral: true});
