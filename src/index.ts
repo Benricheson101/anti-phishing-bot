@@ -11,8 +11,8 @@ new Client({
   makeCache: Options.cacheWithLimits({
     ApplicationCommandManager: 0,
     BaseGuildEmojiManager: 0,
-    // TODO: could this cause a race condition?
-    GuildMemberManager: 10,
+    // TODO: how low can I make this without the bot failing to function?
+    // GuildMemberManager: 10,
     GuildBanManager: 0,
     GuildInviteManager: 0,
     GuildStickerManager: 0,
