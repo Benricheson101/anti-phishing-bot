@@ -26,7 +26,7 @@ Check your config with the command `/config get`
 Use `/stats` to get a list of the top 10 domains of the last 24h that Fish saw.  
 Want more statistics? Check out https://fish.wah.wtf/d/owo/fish  
 
-**Still have issues with the bot or don't understand how it works?**  
+**Need help?**  
 Use `/support` and join the [support server](https://discord.gg/urbJB4Ggsy) and ask in `#support` for help.
 
 
