@@ -27,7 +27,7 @@ Use `/stats` to get a list of the top 10 domains of the last 24h that Fish saw.
 Want more statistics? Check out https://fish.wah.wtf/d/owo/fish  
 
 **Need Help?**  
-Use `/support` and join the [support server](https://discord.gg/urbJB4Ggsy) and ask in `#support` for help.
+Use `/support` and join the [support server](https://discord.gg/yn9fXGAW8Q) and ask in `#support` for help.
 
 
 ## Commands
@@ -36,7 +36,7 @@ Use `/support` and join the [support server](https://discord.gg/urbJB4Ggsy) and 
 `/ping` - See if the bot is receiving commands<br>
 `/stats` - View the current stats for total domains, total hits, or the top ten domain name<br>
 `/lookup` - Check if a domain is registered as a known phishing domain<br>
-`/support` - Get the bot [support server](https://discord.gg/urbJB4Ggsy) link
+`/support` - Get the bot [support server](https://discord.gg/yn9fXGAW8Q) link
 
 ### Configuration<br>
 `/config get` - View your current configuration<br>
