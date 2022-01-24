@@ -4,7 +4,10 @@ import {
   ApplicationCommandOptionType,
 } from 'discord-api-types';
 import {CommandInteraction, Permissions} from 'discord.js';
+import ms, {StringValue} from 'ms';
 import {Command} from 'fish';
+
+const MAX_TIMEOUT_DURATION = ms('28d');
 
 export class ConfigCommand extends Command {
   name = 'config';
@@ -49,6 +52,10 @@ export class ConfigCommand extends Command {
               value: 'MUTE',
             },
             {
+              name: 'Timeout',
+              value: 'TIMEOUT',
+            },
+            {
               name: 'None',
               value: 'NONE',
             },
@@ -68,6 +75,12 @@ export class ConfigCommand extends Command {
           name: 'notify',
           description: "Should users be DM'd when they are action'd",
           type: ApplicationCommandOptionType.Boolean,
+        },
+        {
+          name: 'timeout_duration',
+          description:
+            'Sets the amount of time a user will be timed out when action is set to `TIMEOUT`',
+          type: ApplicationCommandOptionType.String,
         },
       ],
     },
@@ -196,6 +209,10 @@ export class ConfigCommand extends Command {
             {
               name: 'mute_role',
               value: 'muteRole',
+            },
+            {
+              name: 'timeout_duration',
+              value: 'timeoutDuration',
             },
           ],
         },
@@ -366,7 +383,8 @@ export class ConfigCommand extends Command {
             }
 
             // TODO: this is awful
-            const update: Record<string, string | number | boolean> = {};
+            const update: Record<string, string | number | BigInt | boolean> =
+              {};
             for (const op of data.options || []) {
               if (op.name === 'log_channel') {
                 op.name = 'logChannel';
@@ -374,7 +392,41 @@ export class ConfigCommand extends Command {
                 op.name = 'muteRole';
               }
 
-              update[op.name as string] = op.value!;
+              if (op.name === 'timeout_duration') {
+                const val = ms(op.value! as StringValue);
+                if (isNaN(val)) {
+                  await i.reply({
+                    content:
+                      ':x: Invalid duration format. Example formats: `1d`, `30m`, `2 hours`',
+                    ephemeral: true,
+                  });
+
+                  return;
+                }
+
+                if (val > MAX_TIMEOUT_DURATION) {
+                  await i.reply({
+                    content:
+                      ':x: Supplied duration exceeds max timeout duration (28 days).',
+                    ephemeral: true,
+                  });
+
+                  return;
+                }
+
+                if (val <= 0) {
+                  await i.reply({
+                    content: ':x: Timeout value must be greater than zero',
+                    ephemeral: true,
+                  });
+
+                  return;
+                }
+
+                update['timeoutDuration'] = BigInt(val);
+              } else {
+                update[op.name as string] = op.value!;
+              }
             }
 
             const updated = await i.client.db.guildConfigs.update(
@@ -391,19 +443,24 @@ export class ConfigCommand extends Command {
           case 'reset': {
             const d = i.options.get('reset_field', true);
 
-            const DEFAULTS: Record<string, string | boolean | null> = {
+            const DEFAULTS: Record<string, string | BigInt | boolean | null> = {
               delete: true,
               action: 'NONE',
               muteRole: null,
               logChannel: null,
+              timeoutDuration: 604800000n,
             };
 
             const field = d.value! as string;
-            const val = DEFAULTS[field];
+            let val = DEFAULTS[field];
 
             await i.client.db.guildConfigs.update(i.guild.id, {
               [field]: val,
             });
+
+            if (field === 'timeoutDuration') {
+              val = ms(Number(val));
+            }
 
             await i.reply({
               content: `:white_check_mark: Set \`${field}\` to the default value (\`${val}\`)`,
@@ -418,8 +475,15 @@ export class ConfigCommand extends Command {
   }
 }
 
+// TODO: find a better way to do this because this is painful
 function formatConfig(config: GuildConfigs) {
-  const entries = Object.entries(config);
+  const cfg: Omit<GuildConfigs, 'timeoutDuration'> & {timeoutDuration: string} =
+    {
+      ...config,
+      timeoutDuration: ms(Number(config.timeoutDuration)),
+    };
+
+  const entries = Object.entries(cfg);
   const longest = Math.max(...entries.map(([k]) => k.length));
 
   return `\`\`\`ini
