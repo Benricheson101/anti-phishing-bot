@@ -17,7 +17,8 @@ export class MessageCreateEvent extends Event {
       return;
     }
 
-    const matches = await this.client.services.domainManager.test(content);
+    const m = await this.client.services.domainManager.test(content);
+    const matches = m.filter(m => m.isKnown);
 
     if (!matches.length) {
       return;

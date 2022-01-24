@@ -32,7 +32,7 @@
     "fmt": "gts fix",
     "pretest": "yarn run build",
     "posttest": "yarn run lint",
-    "start": "node -r dotenv/config .",
+    "start": "node --trace-warnings -r dotenv/config .",
     "dev": "nodemon"
   },
   "engines": {
