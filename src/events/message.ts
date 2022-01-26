@@ -1,5 +1,6 @@
 import {ActionKind} from '@prisma/client';
-import {Message} from 'discord.js';
+import {PermissionFlagsBits} from 'discord-api-types';
+import {Message, Permissions} from 'discord.js';
 import {Event} from 'fish';
 
 export class MessageCreateEvent extends Event {
@@ -17,17 +18,18 @@ export class MessageCreateEvent extends Event {
       return;
     }
 
-    const matches = await this.client.services.domainManager.test(content);
+    const m = await this.client.services.domainManager.test(content);
+    const matches = m.filter(m => m.isKnown);
 
     if (!matches.length) {
       return;
     }
 
-    for (const match of matches) {
-      this.client.metrics.addDomainHit(match);
+    for (const {domain, isRedir} of matches) {
+      this.client.metrics.addDomainHit(domain, isRedir);
     }
 
-    const hitDomain = matches[0];
+    const hitDomain = matches[0].domain;
 
     const guildConfig = await msg.client.db.guildConfigs.get(msg.guild!.id);
 
@@ -87,6 +89,7 @@ export class MessageCreateEvent extends Event {
             if (msg.member!.bannable) {
               await msg.member!.ban({
                 reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
+                days: 1,
               });
 
               await msg.guild!.members.unban(
@@ -123,6 +126,20 @@ export class MessageCreateEvent extends Event {
               actionsTaken.push('KICK');
             } else {
               actionsFailed.push('KICK');
+            }
+
+            break;
+          }
+
+          case 'TIMEOUT': {
+            try {
+              await msg.member!.timeout(
+                Number(guildConfig.timeoutDuration),
+                `Posted a phishing URL: ${hitDomain}`
+              );
+              actionsTaken.push('TIMEOUT');
+            } catch {
+              actionsFailed.push('TIMEOUT');
             }
 
             break;

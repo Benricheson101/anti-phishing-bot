@@ -8,14 +8,16 @@ generator client {
 }
 
 model GuildConfigs {
-  id         String       @unique
-  delete     Boolean      @default(true)
-  action     ActionKind   @default(NONE)
-  logChannel String?      @map("log_channel")
-  muteRole   String?      @map("mute_role")
-  notify     Boolean?     @default(false)
+
+  id              String       @unique
+  delete          Boolean      @default(true)
+  action          ActionKind   @default(NONE)
+  logChannel      String?      @map("log_channel")
+  muteRole        String?      @map("mute_role")
+  notify          Boolean?     @default(false)
   logFormat  String?      @map("log_format")
-  exemptions Exemptions[]
+  timeoutDuration BigInt          @default(604800000) @map("timeout_duration") // 1w
+  exemptions      Exemptions[]
 }
 
 model Exemptions {
@@ -32,6 +34,7 @@ enum ActionKind {
   SOFTBAN
   KICK
   MUTE
+  TIMEOUT
   NONE
 }
 
