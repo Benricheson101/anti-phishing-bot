@@ -15,19 +15,25 @@ export class LookupCommand extends Command {
   ];
 
   async run(i: CommandInteraction) {
-    const domain = i.options.getString('domain', true);
+    // defer because checking redirects is sometimes slow
+    await i.deferReply({ephemeral: true});
 
+    const domain = i.options.getString('domain', true);
     const results = await this.client.services.domainManager.test(domain);
 
     if (results.length) {
-      const msg = results
-        .map(d => `:white_check_mark: Domain: \`${d.domain}\``)
+      const fmtd = results
+        .map(
+          r =>
+            `${r.isKnown ? ':white_check_mark:' : ':x:'} ${
+              r.isRedir ? ':twisted_rightwards_arrows:' : ':arrow_right:'
+            } Domain: \`${r.domain}\``
+        )
         .join('\n');
-
-      await i.reply({content: msg, ephemeral: true});
+      await i.followUp({content: fmtd, ephemeral: true});
     } else {
-      await i.reply({
-        content: ':x: That is not a known domain.',
+      await i.followUp({
+        content: ':x: No domains found in the specified input text.',
         ephemeral: true,
       });
     }
