@@ -6,6 +6,7 @@ new Client({
   cmdDir: join(__dirname, './cmds'),
   evtDir: join(__dirname, './events'),
   intents: ['GUILDS', 'GUILD_MESSAGES'],
+  shards: Number(process.env.SHARD_COUNT) || 'auto',
 })
   .init()
   .then(client => client.login())
