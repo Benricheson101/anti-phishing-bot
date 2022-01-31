@@ -8,7 +8,7 @@ new Client({
   cmdDir: join(__dirname, './cmds'),
   evtDir: join(__dirname, './events'),
   intents: ['GUILDS', 'GUILD_MESSAGES'],
-  shards: Number(process.env.SHARD_COUNT) || 'auto',
+  shardCount: Number(process.env.SHARD_COUNT) || undefined,
   makeCache: Options.cacheWithLimits({
     ApplicationCommandManager: 0,
     BaseGuildEmojiManager: 0,
