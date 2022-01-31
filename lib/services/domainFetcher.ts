@@ -98,30 +98,38 @@ export class DomainManager {
   async test(
     msg: string,
     redird = false
-  ): Promise<{domain: string; isRedir: boolean}[]> {
-    const domains = Array.from(msg.matchAll(DOMAIN_REGEX)).filter(
-      (d, i, self) => i === self.findIndex(a => a[0] === d[0])
+  ): Promise<{domain: string; isKnown: boolean; isRedir: boolean}[]> {
+    const domains = Array.from(msg.matchAll(DOMAIN_REGEX))
+      .filter((d, i, self) => i === self.findIndex(a => a[0] === d[0]))
+      .map(d => ({
+        match: d,
+        domain: d[1],
+        hash: createHash('sha256').update(d[1]).digest('hex'),
+      }));
+
+    const known = domains.filter(d => this.domains.has(d.hash));
+    const unknown = domains.filter(
+      d => !this.domains.has(d.hash) && !this.shorteners.has(d.domain)
     );
 
-    const hasMatch = domains.filter(d =>
-      this.domains.has(createHash('sha256').update(d[1]).digest('hex'))
+    const isRedir = domains.filter(d => this.shorteners.has(d.domain));
+    const redirected = await Promise.all(
+      isRedir.map(d => getLastRedirectPage(d.match))
     );
+    const redirUrls = redirected.filter(Boolean) as string[];
+    const redirChecked = await Promise.all(
+      redirUrls.map(d => this.test(d, true))
+    ).then(a => a.flat());
 
-    if (hasMatch.length) {
-      return hasMatch.map(d => ({domain: d[1], isRedir: redird}));
-    }
-
-    const isRedir = domains.filter(d => this.shorteners.has(d[1]));
-
-    if (isRedir.length) {
-      const redirected = await Promise.all(isRedir.map(getLastRedirectPage));
-      const redirectedUrls = redirected.filter(Boolean) as string[];
-      return Promise.all(
-        redirectedUrls.map(async a => (await this.test(a, true))[0])
-      ).then(a => a.filter(Boolean));
-    }
-
-    return [];
+    return [
+      ...known.map(d => ({domain: d.domain, isKnown: true, isRedir: redird})),
+      ...unknown.map(d => ({
+        domain: d.domain,
+        isKnown: false,
+        isRedir: redird,
+      })),
+      ...redirChecked,
+    ];
   }
 
   async getScamDomains(): Promise<string[]> {

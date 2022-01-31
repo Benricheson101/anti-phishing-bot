@@ -1,5 +1,6 @@
 import {ActionKind} from '@prisma/client';
-import {Message} from 'discord.js';
+import {PermissionFlagsBits} from 'discord-api-types';
+import {Message, Permissions} from 'discord.js';
 import {Event} from 'fish';
 
 export class MessageCreateEvent extends Event {
@@ -17,7 +18,8 @@ export class MessageCreateEvent extends Event {
       return;
     }
 
-    const matches = await this.client.services.domainManager.test(content);
+    const m = await this.client.services.domainManager.test(content);
+    const matches = m.filter(m => m.isKnown);
 
     if (!matches.length) {
       return;
@@ -126,6 +128,20 @@ export class MessageCreateEvent extends Event {
               actionsTaken.push('KICK');
             } else {
               actionsFailed.push('KICK');
+            }
+
+            break;
+          }
+
+          case 'TIMEOUT': {
+            try {
+              await msg.member!.timeout(
+                Number(guildConfig.timeoutDuration),
+                `Posted a phishing URL: ${hitDomain}`
+              );
+              actionsTaken.push('TIMEOUT');
+            } catch {
+              actionsFailed.push('TIMEOUT');
             }
 
             break;
