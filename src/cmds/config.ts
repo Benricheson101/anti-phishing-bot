@@ -77,6 +77,11 @@ export class ConfigCommand extends Command {
           type: ApplicationCommandOptionType.Boolean,
         },
         {
+          name: 'log_format',
+          description:
+            'Set a custom message to send in the log channel. Note: Requires a log channel',
+          type: ApplicationCommandOptionType.String
+         }, {
           name: 'timeout_duration',
           description:
             'Sets the amount of time a user will be timed out when action is set to `TIMEOUT`',
