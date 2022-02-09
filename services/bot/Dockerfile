@@ -1,16 +1,29 @@
 FROM node:16 AS builder
 
-RUN yarn global add prisma
+RUN apt update -y && apt install -y protobuf-compiler
+RUN yarn global add prisma ts-protoc-gen
 
 WORKDIR /usr/src/app
 
-COPY package.json yarn.lock tsconfig.json ./
+COPY \
+  ./services/bot/package.json \
+  ./services/bot/yarn.lock \
+  ./services/bot/tsconfig.json \
+  ./
 
 RUN yarn
 
-COPY . .
+COPY ./services/bot/. .
+COPY ./protos ./protos
+
+RUN mkdir -p build/lib/protos
+RUN protoc \
+  -I=./protos \
+  --ts_out="./lib/protos" \
+  --js_out="import_style=commonjs,binary:./build/lib/protos" \
+  ./protos/*.proto
 
 RUN prisma generate
-RUN yarn run build:clean
+RUN yarn run build
 
-CMD ["yarn", "run", "start"]
+ENTRYPOINT ["yarn", "run", "start"]

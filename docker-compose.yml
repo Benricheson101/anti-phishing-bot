@@ -2,9 +2,23 @@ version: '3.9'
 
 services:
   bot:
-    build: './services/bot'
+    build:
+      context: '.'
+      dockerfile: './services/bot/Dockerfile'
     volumes:
       - './.env:/usr/src/app/.env'
+    depends_on:
+      - 'db'
+      - 'imgcompare'
+      - 'prometheus'
+    deploy:
+      restart_policy:
+        condition: 'on-failure'
+
+  imgcompare:
+    build:
+      context: '.'
+      dockerfile: './services/imgcompare/Dockerfile'
     depends_on:
       - 'db'
       - 'prometheus'

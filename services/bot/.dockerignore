@@ -9,4 +9,6 @@
 !/yarn.lock
 !/tsconfig.json
 
+*pb.d.ts
+
 # vim:ft=gitignore

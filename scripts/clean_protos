@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+root="$(dirname "$0")/.."
+
+rm -f \
+  $root/services/bot/lib/protos/*.d.ts \
+  $root/services/imagehasher/pkg/protos/*.pb.go
