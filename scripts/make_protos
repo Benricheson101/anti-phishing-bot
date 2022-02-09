@@ -11,6 +11,7 @@ mkdir -p "$root/services/bot/build/lib/protos"
 protoc \
   -I="$root/protos" \
   --go_out="$GO_OUT" \
+  --go-grpc_out="$GO_OUT" \
   --js_out="import_style=commonjs,binary:$JS_OUT" \
   --ts_out="$TS_OUT" \
   $root/protos/*.proto

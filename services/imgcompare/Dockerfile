@@ -12,6 +12,7 @@ RUN mkdir -p pkg/protos
 RUN protoc \
   -I=./protos \
   --go_out="." \
+  --go-grpc_out="." \
   ./protos/*.proto
 
 RUN go build -o imgcompare cmd/imagehasher/main.go
