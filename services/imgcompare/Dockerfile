@@ -2,6 +2,7 @@ FROM golang:alpine AS builder
 
 RUN apk add protoc
 RUN go install github.com/golang/protobuf/protoc-gen-go@latest
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /usr/src/app
 
@@ -15,7 +16,7 @@ RUN protoc \
   --go-grpc_out="." \
   ./protos/*.proto
 
-RUN go build -o imgcompare cmd/imagehasher/main.go
+RUN go build -o imgcompare cmd/server/main.go
 
 FROM alpine AS runtime
 COPY --from=builder /usr/src/app/imgcompare /bin
