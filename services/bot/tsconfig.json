@@ -8,10 +8,16 @@
     "baseUrl": ".",
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowJs": true,
     "paths": {
       "fish": ["./lib"]
     },
     "typeRoots": ["node_modules/@types", "./lib/types"]
   },
-  "include": ["src/**/*.ts", "lib/**/*.ts", "scripts/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "lib/**/*.ts",
+    "lib/protos/*.js",
+    "scripts/**/*.ts"
+  ]
 }

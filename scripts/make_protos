@@ -3,15 +3,15 @@
 root="$(dirname "$0")/.."
 
 GO_OUT="$root/services/imgcompare"
-JS_OUT="$root/services/bot/build/lib/protos"
-TS_OUT="$root/services/bot/lib/protos" # idk why but this breaks if you append /protos
-
-mkdir -p "$root/services/bot/build/lib/protos"
+TS_OUT="$root/services/bot/lib/protos"
 
 protoc \
   -I="$root/protos" \
+  --plugin="protoc-gen-ts=$root/services/bot/node_modules/.bin/protoc-gen-ts" \
+  --plugin="protoc-gen-grpc=$root/services/bot/node_modules/.bin/grpc_tools_node_protoc_plugin" \
   --go_out="$GO_OUT" \
   --go-grpc_out="$GO_OUT" \
-  --js_out="import_style=commonjs,binary:$JS_OUT" \
-  --ts_out="$TS_OUT" \
+  --grpc_out="grpc_js:$TS_OUT" \
+  --js_out="import_style=commonjs,binary:$TS_OUT" \
+  --ts_out="service=grpc-node,mode=grpc-js:$TS_OUT" \
   $root/protos/*.proto

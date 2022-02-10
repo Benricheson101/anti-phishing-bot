@@ -3,5 +3,8 @@
 root="$(dirname "$0")/.."
 
 rm -f \
-  $root/services/bot/lib/protos/*.d.ts \
-  $root/services/imagehasher/pkg/protos/*.pb.go
+  $root/services/bot/lib/protos/*_pb.d.ts \
+  $root/services/bot/lib/protos/*_pb.js \
+  $root/services/bot/lib/protos/*_service.d.ts \
+  $root/services/bot/lib/protos/*_service.js \
+  $root/services/imgcompare/pkg/protos/*.pb.go
