@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/benricheson101/anti-phishing-bot/imgcompare/pkg/protos"
+	"github.com/benricheson101/anti-phishing-bot/dm-scam-checker/pkg/protos"
 )
 
 type ImageComparisonServer struct {

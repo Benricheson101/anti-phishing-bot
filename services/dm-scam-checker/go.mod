@@ -1,4 +1,4 @@
-module github.com/benricheson101/anti-phishing-bot/imgcompare
+module github.com/benricheson101/anti-phishing-bot/dm-scam-checker
 
 go 1.17
 

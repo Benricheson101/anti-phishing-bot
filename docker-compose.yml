@@ -9,16 +9,16 @@ services:
       - './.env:/usr/src/app/.env'
     depends_on:
       - 'db'
-      - 'imgcompare'
+      - 'dm_scam_checker'
       - 'prometheus'
     deploy:
       restart_policy:
         condition: 'on-failure'
 
-  imgcompare:
+  dm_scam-checker:
     build:
       context: '.'
-      dockerfile: './services/imgcompare/Dockerfile'
+      dockerfile: './services/dm-scam-checker/Dockerfile'
     depends_on:
       - 'db'
       - 'prometheus'
