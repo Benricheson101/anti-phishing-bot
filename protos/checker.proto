@@ -1,0 +1,35 @@
+syntax = "proto3";
+package fish;
+option go_package = "pkg/protos";
+
+import "hasher.proto";
+
+/* service ImageComparisonService { */
+/*   rpc Compare(ImageComparisonRequest) returns (ImageComparisonResponse); */
+/* } */
+
+/* message ImageComparisonRequest { */
+/*   string user_id = 1; */
+/*   // The avatar hash from Discord */
+/*   string avatar_hash = 2; */
+/* } */
+
+/* message ImageComparisonResponse { */
+/*   // The perceptual comparison distance */
+/*   int32 distance = 1; */
+/* } */
+
+service CheckerService {
+  rpc CheckUser(CheckUserRequest) returns (CheckUserResponse);
+}
+
+message CheckUserRequest {
+  string user_id = 1;
+  ImageHashTypes hash_type = 2;
+}
+
+message CheckUserResponse {
+  ImageHashTypes type = 1;
+  string hash = 2;
+  int32 distance = 3;
+}
