@@ -12,7 +12,9 @@ import (
 
 func main() {
 	s := grpc.NewServer()
-	protos.RegisterImageComparisonServiceServer(s, &services.ImageComparisonServer{})
+	// protos.RegisterImageComparisonServiceServer(s, &services.ImageComparisonServer{})
+
+	protos.RegisterHasherServiceServer(s, &services.HasherServiceServer{})
 
 	reflection.Register(s)
 
