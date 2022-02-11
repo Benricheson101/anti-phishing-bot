@@ -9,16 +9,16 @@ services:
       - './.env:/usr/src/app/.env'
     depends_on:
       - 'db'
-      - 'dm_scam_checker'
+      - 'abusive_user_checker'
       - 'prometheus'
     deploy:
       restart_policy:
         condition: 'on-failure'
 
-  dm_scam-checker:
+  abusive_user_checker:
     build:
       context: '.'
-      dockerfile: './services/dm-scam-checker/Dockerfile'
+      dockerfile: './services/abusive-user-checker/Dockerfile'
     depends_on:
       - 'db'
       - 'prometheus'

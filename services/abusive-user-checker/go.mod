@@ -1,4 +1,4 @@
-module github.com/benricheson101/anti-phishing-bot/dm-scam-checker
+module github.com/benricheson101/anti-phishing-bot/abusive-user-checker
 
 go 1.17
 

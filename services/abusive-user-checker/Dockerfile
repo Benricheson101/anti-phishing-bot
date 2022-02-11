@@ -6,7 +6,7 @@ RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /usr/src/app
 
-COPY ./services/dm-scam-checker/. .
+COPY ./services/abusive-user-checker/. .
 COPY ./protos ./protos
 
 RUN mkdir -p pkg/protos
@@ -16,8 +16,8 @@ RUN protoc \
   --go-grpc_out="." \
   ./protos/*.proto
 
-RUN go build -o dm-scam-checker cmd/server/main.go
+RUN go build -o abusive-user-checker cmd/server/main.go
 
 FROM alpine AS runtime
-COPY --from=builder /usr/src/app/dm-scam-checker /bin
-ENTRYPOINT [ "dm-scam-checker" ]
+COPY --from=builder /usr/src/app/abusive-user-checker /bin
+ENTRYPOINT [ "abusive-user-checker" ]

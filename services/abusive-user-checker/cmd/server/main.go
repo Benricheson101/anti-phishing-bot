@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
-	protos "github.com/benricheson101/anti-phishing-bot/dm-scam-checker/pkg/protos"
-	"github.com/benricheson101/anti-phishing-bot/dm-scam-checker/pkg/services"
+	protos "github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/protos"
+	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/services"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

@@ -7,4 +7,4 @@ rm -f \
   $root/services/bot/lib/protos/*_pb.js \
   $root/services/bot/lib/protos/*_service.d.ts \
   $root/services/bot/lib/protos/*_service.js \
-  $root/services/dm-scam-checker/pkg/protos/*.pb.go
+  $root/services/abusive-user-checker/pkg/protos/*.pb.go

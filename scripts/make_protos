@@ -2,7 +2,7 @@
 
 root="$(dirname "$0")/.."
 
-GO_OUT="$root/services/dm-scam-checker"
+GO_OUT="$root/services/abusive-user-checker"
 TS_OUT="$root/services/bot/lib/protos"
 
 protoc \
