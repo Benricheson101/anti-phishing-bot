@@ -5,74 +5,27 @@ option go_package = "pkg/protos";
 import "google/protobuf/empty.proto";
 
 service HasherService {
-  // Hashes an image and adds it to the database
-  rpc Add(AddImageRequest) returns (AddImageResponse);
-  // Downloads an image from a URL, hashes and adds it to the database
+  // Hashes an image from a URL and adds it to the database
   rpc AddImageFromURL(AddImageFromURLRequest) returns (AddImageResponse);
   // Deletes an image from the database
-  rpc Remove(RemoveImageRequest) returns (google.protobuf.Empty);
-  // Hashes an image without adding it to the database
-  rpc Hash(HashImageRequest) returns (HashImageResponse);
-  // Downloads an image and returns hashes without adding it to the database
-  rpc HashImageFromURL(HashImageFromURLRequest) returns (HashImageResponse);
+  rpc RemoveImage(RemoveImageRequest) returns (google.protobuf.Empty);
 }
 
 message ImageHashes {
-  string sha256 = 1;
-  string aHash = 2;
-  string dHash = 3;
-  string pHash = 4;
-  string wHash = 5;
-}
-
-enum ImageHashTypes {
-  SHA256 = 0;
-  AHASH = 1;
-  DHASH = 2;
-  PHASH = 3;
-  WHASH = 4;
-}
-
-message ImageMetadata {
-  ImageType type = 1;
-  int32 width = 2;
-  int32 height = 3;
-}
-
-enum ImageType {
-  PNG = 0;
-}
-
-message AddImageRequest {
-  bytes image = 1;
-  string description = 2;
+  string md5 = 1;
+  string sha256 = 2;
+  string pHash = 3;
 }
 
 message AddImageFromURLRequest {
   string url = 1;
-  string description = 2;
 }
 
 message AddImageResponse {
-  int32 id = 1;
-  string description = 2;
+  int64 id = 1;
   ImageHashes hashes = 3;
-  ImageMetadata metadata = 4;
 }
 
 message RemoveImageRequest {
-  int32 id = 1;
-}
-
-message HashImageRequest {
-  bytes image = 1;
-}
-
-message HashImageResponse {
-  ImageHashes hashes = 1;
-  ImageMetadata metadata = 2;
-}
-
-message HashImageFromURLRequest {
-  string url = 1;
+  int64 id = 1;
 }

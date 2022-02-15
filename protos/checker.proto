@@ -5,16 +5,17 @@ option go_package = "pkg/protos";
 import "hasher.proto";
 
 service CheckerService {
-  rpc CheckUser(CheckUserRequest) returns (CheckUserResponse);
+  // Downloads an image and returns the nearest hash by phash hamming distance
+  rpc CheckImage(CheckImageRequest) returns (CheckImageResponse);
 }
 
-message CheckUserRequest {
-  string user_id = 1;
-  ImageHashTypes hash_type = 2;
+message CheckImageRequest {
+  string url = 1;
 }
 
-message CheckUserResponse {
-  ImageHashTypes type = 1;
-  string hash = 2;
-  int32 distance = 3;
+message CheckImageResponse {
+  int64 id = 1;
+  string description = 2;
+  int32 phash_distance = 3;
+  ImageHashes hashes = 4;
 }

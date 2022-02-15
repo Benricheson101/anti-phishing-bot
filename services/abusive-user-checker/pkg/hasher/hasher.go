@@ -2,102 +2,93 @@ package hasher
 
 import (
 	"bytes"
+	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"hash"
 	"image/png"
+	"strconv"
 	"sync"
 
-	"github.com/corona10/goimagehash"
-
+	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/database/dbmodels"
 	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/protos"
+	"github.com/corona10/goimagehash"
 )
 
-func AllHashes(img []byte) *protos.ImageHashes {
-	hashes := protos.ImageHashes{}
+type Hashes struct {
+	SHA256, MD5 hash.Hash
+	PHash       *goimagehash.ImageHash
+}
 
-	wg := sync.WaitGroup{}
-	mu := &sync.Mutex{}
-
-	asImage, err := png.Decode(bytes.NewBuffer(img))
-	if err != nil {
-		fmt.Println("unable to decode png:", err)
-		return nil
+func (h Hashes) ToProtobuf() *protos.ImageHashes {
+	return &protos.ImageHashes{
+		Md5:    hex.EncodeToString(h.MD5.Sum(nil)),
+		Sha256: hex.EncodeToString(h.SHA256.Sum(nil)),
+		PHash:  strconv.FormatUint(h.PHash.GetHash(), 16),
 	}
+}
 
-	//sha256
-	wg.Add(1)
-	go func(hashes *protos.ImageHashes) {
+func (h Hashes) ToDBImage() *dbmodels.DBImage {
+	return &dbmodels.DBImage{
+		MD5:    hex.EncodeToString(h.MD5.Sum(nil)),
+		SHA256: hex.EncodeToString(h.SHA256.Sum(nil)),
+		PHash:  strconv.FormatUint(h.PHash.GetHash(), 2),
+	}
+}
+
+func HashImage(img []byte) *Hashes {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	wg.Add(3)
+
+	var hashes Hashes
+
+	// sha256
+	go func(img []byte, hashes *Hashes) {
 		defer wg.Done()
 
-		h := sha256.New()
-
-		_, err := h.Write(img)
-		if err != nil {
-			fmt.Printf("sha256 failed: %v\n", err)
-			return
-		}
-
-		asString := hex.EncodeToString(h.Sum(nil))
+		sha256Hash := sha256.New()
+		sha256Hash.Write(img)
 
 		mu.Lock()
 		defer mu.Unlock()
-		hashes.Sha256 = asString
-	}(&hashes)
+		hashes.SHA256 = sha256Hash
 
-	// aHash
-	wg.Add(1)
-	go func(hashes *protos.ImageHashes) {
+	}(img, &hashes)
+
+	// phash
+	go func(img []byte, hashes *Hashes) {
 		defer wg.Done()
 
-		h, err := goimagehash.AverageHash(asImage)
+		i, err := png.Decode(bytes.NewBuffer(img))
 		if err != nil {
-			fmt.Printf("ahash failed: %v\n", err)
+			fmt.Printf("failed to decode png: %v\n", err)
 			return
 		}
 
-		asString := fmt.Sprintf("%16x", h.GetHash())
-
-		mu.Lock()
-		defer mu.Unlock()
-		hashes.AHash = asString
-	}(&hashes)
-
-	// dHash
-	wg.Add(1)
-	go func(hashes *protos.ImageHashes) {
-		defer wg.Done()
-
-		h, err := goimagehash.DifferenceHash(asImage)
+		phash, err := goimagehash.PerceptionHash(i)
 		if err != nil {
-			fmt.Printf("ahash failed: %v\n", err)
+			fmt.Printf("failed to calculate perceptual hash of image: %v\n", err)
 			return
 		}
 
-		asString := fmt.Sprintf("%16x", h.GetHash())
-
 		mu.Lock()
 		defer mu.Unlock()
-		hashes.DHash = asString
-	}(&hashes)
+		hashes.PHash = phash
+	}(img, &hashes)
 
-	// pHash
-	wg.Add(1)
-	go func(hashes *protos.ImageHashes) {
+	// md5
+	go func(img []byte, hashes *Hashes) {
 		defer wg.Done()
 
-		h, err := goimagehash.PerceptionHash(asImage)
-		if err != nil {
-			fmt.Printf("ahash failed: %v\n", err)
-			return
-		}
-
-		asString := fmt.Sprintf("%16x", h.GetHash())
+		md5Hash := md5.New()
+		md5Hash.Write(img)
 
 		mu.Lock()
 		defer mu.Unlock()
-		hashes.PHash = asString
-	}(&hashes)
+		hashes.MD5 = md5Hash
+	}(img, &hashes)
 
 	wg.Wait()
 
