@@ -41,5 +41,10 @@ func (*CheckerServiceServer) CheckImage(ctx context.Context, req *protos.CheckIm
 	return &protos.CheckImageResponse{
 		Id:            checked.Id,
 		PhashDistance: int32(checked.HammingDistance),
+		Hashes: &protos.ImageHashes{
+			Md5:    checked.MD5,
+			Sha256: checked.SHA256,
+			PHash:  checked.GetPHashHex(),
+		},
 	}, nil
 }

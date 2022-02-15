@@ -15,7 +15,6 @@ message CheckImageRequest {
 
 message CheckImageResponse {
   int64 id = 1;
-  string description = 2;
   int32 phash_distance = 3;
   ImageHashes hashes = 4;
 }
