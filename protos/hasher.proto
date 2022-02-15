@@ -2,13 +2,9 @@ syntax = "proto3";
 package fish;
 option go_package = "pkg/protos";
 
-import "google/protobuf/empty.proto";
-
 service HasherService {
   // Hashes an image from a URL and adds it to the database
   rpc AddImageFromURL(AddImageFromURLRequest) returns (AddImageResponse);
-  // Deletes an image from the database
-  rpc RemoveImage(RemoveImageRequest) returns (google.protobuf.Empty);
 }
 
 message ImageHashes {
@@ -24,8 +20,4 @@ message AddImageFromURLRequest {
 message AddImageResponse {
   int64 id = 1;
   ImageHashes hashes = 3;
-}
-
-message RemoveImageRequest {
-  int64 id = 1;
 }

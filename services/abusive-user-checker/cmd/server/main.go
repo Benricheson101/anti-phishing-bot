@@ -33,7 +33,8 @@ func main() {
 		log.Fatalf("failed to listen on %v\n", lis.Addr())
 	}
 
-	err = database.InitDB()
+	dsn := os.Getenv("DATABASE_URL")
+	err = database.InitDB(dsn)
 	if err != nil {
 		panic(err)
 	}

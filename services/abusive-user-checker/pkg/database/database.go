@@ -3,12 +3,10 @@ package database
 import (
 	"context"
 	"database/sql"
-	"os"
 	"strconv"
 	"sync"
 
 	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/database/dbmodels"
-	"github.com/joho/godotenv"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -17,13 +15,8 @@ import (
 var db *bun.DB
 var initDbOnce sync.Once
 
-func init() {
-	godotenv.Load()
-}
-
-func InitDB() error {
+func InitDB(dsn string) error {
 	initDbOnce.Do(func() {
-		dsn := os.Getenv("DATABASE_URL")
 		sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 		db = bun.NewDB(sqldb, pgdialect.New())
 	})

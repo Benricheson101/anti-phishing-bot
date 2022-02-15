@@ -20,4 +20,4 @@ RUN go build -o abusive-user-checker cmd/server/main.go
 
 FROM alpine AS runtime
 COPY --from=builder /usr/src/app/abusive-user-checker /bin
-ENTRYPOINT [ "abusive-user-checker" ]
+ENTRYPOINT [ "/bin/abusive-user-checker" ]

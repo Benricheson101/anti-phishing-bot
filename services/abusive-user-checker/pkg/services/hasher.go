@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/database"
 	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/hasher"
 	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/protos"
@@ -40,8 +38,4 @@ func (*HasherServiceServer) AddImageFromURL(ctx context.Context, req *protos.Add
 	ret.Id = dbImg.Id
 
 	return ret, nil
-}
-
-func (*HasherServiceServer) RemoveImage(ctx context.Context, req *protos.RemoveImageRequest) (*emptypb.Empty, error) {
-	return nil, nil
 }
