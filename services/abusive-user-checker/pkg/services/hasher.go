@@ -35,7 +35,7 @@ func (*HasherServiceServer) AddImageFromURL(ctx context.Context, req *protos.Add
 		fmt.Printf("failed to create image in database: %v\n", err)
 		return nil, err
 	}
-	ret.Id = dbImg.Id
+	ret.Id = int32(dbImg.Id)
 
 	return ret, nil
 }
