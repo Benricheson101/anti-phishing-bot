@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+ADDR='localhost:3000'
+ROOT="$(dirname "$0")/.."
+
+USER_ID_FILE="$ROOT/users.json"
+PFP_FILE="$ROOT/pfp_output"
+
+sent=0
+
+users=($(jq -r '.[]' "$USER_ID_FILE"))
+
+for user in "${users[@]}"; do
+  echo "$sent $user"
+  if [[ $(($sent % 30)) == "0" && $sent != "0" ]]; then
+    echo "$sent | pausing for 30 seconds"
+    sleep 30
+  fi
+
+  out=$(curl -sSL "https://discord.com/api/v10/users/$user" -H "Authorization: Bot $DISCORD_TOKEN")
+  echo "$out" >> "$PFP_FILE"
+
+  : $((sent++))
+done

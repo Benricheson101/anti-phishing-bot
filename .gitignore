@@ -5,5 +5,6 @@
 .env
 build
 node_modules
+users.json
 
 #vim:ft=gitignore

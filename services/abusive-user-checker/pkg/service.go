@@ -36,11 +36,17 @@ func (*AbusiveUserServiceServer) AddImageFromURL(ctx context.Context, req *proto
 	dbImg := hashes.ToDBImage()
 	dbImg.Source = url
 
-	_, err = database.CreateImage(context.Background(), dbImg)
+	res, err := database.CreateImage(context.Background(), dbImg)
 	if err != nil {
 		fmt.Printf("failed to create image in database: %v\n", err)
 		return nil, err
 	}
+
+	rows, _ := res.RowsAffected()
+	if rows == 0 {
+		return nil, errors.New("failed to insert iamge")
+	}
+
 	ret.Id = int32(dbImg.Id)
 
 	return ret, nil

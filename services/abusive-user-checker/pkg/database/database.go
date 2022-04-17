@@ -31,7 +31,6 @@ func GetDB() *bun.DB {
 func CreateImage(ctx context.Context, img *dbmodels.DBImage) (sql.Result, error) {
 	return db.NewInsert().
 		Model(img).
-		Ignore().
 		Exec(ctx)
 }
 
