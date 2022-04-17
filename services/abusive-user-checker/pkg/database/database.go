@@ -66,3 +66,18 @@ func GetMostSimilarImage(ctx context.Context, phash uint64) (*SimilarImageRespon
 
 	return &out, err
 }
+
+func RemoveImage(ctx context.Context, id int32) (bool, error) {
+	res, err := db.
+		NewDelete().
+		Model((*dbmodels.DBImage)(nil)).
+		Where("id = ?", id).
+		Exec(ctx)
+
+	rows, rowsErr := res.RowsAffected()
+	if rowsErr != nil {
+		return false, rowsErr
+	}
+
+	return rows != 0, err
+}

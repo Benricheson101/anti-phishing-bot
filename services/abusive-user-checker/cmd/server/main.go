@@ -6,8 +6,10 @@ import (
 	"net"
 	"os"
 
+	pkg "github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg"
 	protos "github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/protos"
-	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/services"
+
+	// "github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/services"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -23,8 +25,10 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 
-	protos.RegisterHasherServiceServer(s, &services.HasherServiceServer{})
-	protos.RegisterCheckerServiceServer(s, &services.CheckerServiceServer{})
+	protos.RegisterAbusiveUserServiceServer(s, &pkg.AbusiveUserServiceServer{})
+
+	// protos.RegisterHasherServiceServer(s, &services.HasherServiceServer{})
+	// protos.RegisterCheckerServiceServer(s, &services.CheckerServiceServer{})
 
 	grpcAddr := os.Getenv("GRPC_ADDR")
 
