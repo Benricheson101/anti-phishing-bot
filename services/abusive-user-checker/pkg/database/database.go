@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/benricheson101/anti-phishing-bot/abusive-user-checker/pkg/database/dbmodels"
@@ -51,7 +52,8 @@ type SimilarImageResponse struct {
 }
 
 func GetMostSimilarImage(ctx context.Context, phash uint64) (*SimilarImageResponse, error) {
-	bits := strconv.FormatUint(phash, 2)
+	bits := (strings.Repeat("0", 64) + strconv.FormatUint(phash, 2))
+	bits = bits[len(bits)-64:]
 
 	var out SimilarImageResponse
 	err := db.
