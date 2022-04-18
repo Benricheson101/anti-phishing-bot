@@ -2,4 +2,21 @@
 
 !/protos
 !/scripts
-!/services
+
+!/services/bot/src
+!/services/bot/lib
+!/services/bot/prisma
+!/services/bot/scripts
+!/services/bot/package.json
+!/services/bot/yarn.lock
+!/services/bot/tsconfig.json
+
+!/services/abusive-user-checker/cmd
+!/services/abusive-user-checker/pkg
+!/services/abusive-user-checker/go.mod
+!/services/abusive-user-checker/go.sum
+
+*pb.d.ts
+*.pb.go
+
+# vim:ft=gitignore

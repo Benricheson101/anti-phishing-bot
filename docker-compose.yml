@@ -11,6 +11,7 @@ services:
       - 'db'
       - 'abusive_user_checker'
       - 'prometheus'
+    platform: 'linux/x86_64'
     deploy:
       restart_policy:
         condition: 'on-failure'
