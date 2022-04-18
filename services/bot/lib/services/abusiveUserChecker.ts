@@ -43,6 +43,7 @@ export class AbusiveUserChecker {
     const normalized = username.replace(/\s/g, '').toLowerCase();
 
     const keywords = [
+      'academy',
       'dev',
       'discord',
       'employee',
