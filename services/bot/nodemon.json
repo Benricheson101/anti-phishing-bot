@@ -1,18 +1,9 @@
 {
   "exitcrash": false,
   "verbose": true,
-  "runOnChangeOnly": true,
-  "watch": [
-    "src",
-    "lib"
-  ],
-  "ignore": [
-    "./node_modules",
-    "./build",
-    "./test",
-    "*.log",
-    "*.vim"
-  ],
+  "runOnChangeOnly": false,
+  "watch": ["src", "lib"],
+  "ignore": ["./node_modules", "./build", "./test", "*.log", "*.vim"],
   "ext": "js,ts,json,yaml,yml,toml",
   "exec": "ts-node -r dotenv/config -r tsconfig-paths/register src/index.ts"
 }

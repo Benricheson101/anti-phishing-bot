@@ -7,7 +7,7 @@ import {Client} from 'fish';
 new Client({
   cmdDir: join(__dirname, './cmds'),
   evtDir: join(__dirname, './events'),
-  intents: ['GUILDS', 'GUILD_MESSAGES'],
+  intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MEMBERS'],
   shardCount: Number(process.env.SHARD_COUNT) || undefined,
   makeCache: Options.cacheWithLimits({
     ApplicationCommandManager: 0,

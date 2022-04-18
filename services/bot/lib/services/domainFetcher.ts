@@ -135,7 +135,7 @@ export class DomainManager {
   async getScamDomains(): Promise<string[]> {
     let domains: string[] = [];
     const {body: phishApiBody, statusCode: phishApiStatusCode} = await request(
-      process.env.API_URL!
+      process.env.API_URL
     );
 
     if (phishApiStatusCode > 300 || phishApiStatusCode < 200) {

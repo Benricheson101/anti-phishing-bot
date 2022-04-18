@@ -1,6 +1,5 @@
 import {ActionKind} from '@prisma/client';
-import {PermissionFlagsBits} from 'discord-api-types';
-import {Message, Permissions} from 'discord.js';
+import {Message} from 'discord.js';
 import {Event} from 'fish';
 
 export class MessageCreateEvent extends Event {

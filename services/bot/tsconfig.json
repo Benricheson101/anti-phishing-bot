@@ -12,7 +12,7 @@
     "paths": {
       "fish": ["./lib"]
     },
-    "typeRoots": ["node_modules/@types", "./lib/types"]
+    "typeRoots": ["node_modules/@types", "lib/types"]
   },
   "include": [
     "src/**/*.ts",
