@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+ADDR='localhost:3000'
+
+add_image() {
+  grpcurl --plaintext -d "{\"url\": \"$1\"}" $ADDR fish.AbusiveUserService.AddImageFromURL
+}
+
+check_image() {
+  grpcurl --plaintext -d "{\"url\": \"$1\"}" $ADDR fish.AbusiveUserService.CheckImage
+}
+
+remove_image() {
+  grpcurl --plaintext -d "{\"id\": \"$1\"}" $ADDR fish.AbusiveUserService.RemoveImage
+}

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+root="$(dirname "$0")/.."
+
+rm -f \
+  $root/services/bot/lib/protos/*_pb.d.ts \
+  $root/services/bot/lib/protos/*_pb.js \
+  $root/services/bot/lib/protos/*_service.d.ts \
+  $root/services/bot/lib/protos/*_service.js \
+  $root/services/abusive-user-checker/pkg/protos/*.pb.go

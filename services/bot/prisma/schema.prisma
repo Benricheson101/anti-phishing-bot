@@ -1,0 +1,45 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model GuildConfigs {
+  id                String       @unique
+  delete            Boolean      @default(true)
+  phishingAction    ActionKind   @default(NONE) @map("phishing_action")
+  abusiveUserAction ActionKind   @default(KICK) @map("abusive_user_action")
+  logChannel        String?      @map("log_channel")
+  muteRole          String?      @map("mute_role")
+  notify            Boolean?     @default(false)
+  timeoutDuration   BigInt       @default(604800000) @map("timeout_duration") // 1w
+  exemptions        Exemptions[]
+}
+
+model Exemptions {
+  id      String
+  kind    ExemptionKind
+  guild   GuildConfigs  @relation(fields: [guildId], references: [id])
+  guildId String        @map("guild_id")
+
+  @@unique([id, guildId])
+}
+
+enum ActionKind {
+  BAN
+  SOFTBAN
+  KICK
+  MUTE
+  TIMEOUT
+  NONE
+}
+
+enum ExemptionKind {
+  USER
+  ROLE
+}
+
+// vim:si

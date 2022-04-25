@@ -1,8 +1,12 @@
-.DS_STORE
-/node_modules
-/.env
-/build
 *.log
 *.swp
+*.vim
+.DS_STORE
+.env
+build
+node_modules
+/users.json
+/avs
+/avs.txt
 
 #vim:ft=gitignore

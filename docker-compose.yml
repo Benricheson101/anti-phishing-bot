@@ -2,9 +2,26 @@ version: '3.9'
 
 services:
   bot:
-    build: '.'
+    build:
+      context: '.'
+      dockerfile: './services/bot/Dockerfile'
     volumes:
       - './.env:/usr/src/app/.env'
+    depends_on:
+      - 'db'
+      - 'abusive_user_checker'
+      - 'prometheus'
+    platform: 'linux/x86_64'
+    deploy:
+      restart_policy:
+        condition: 'on-failure'
+
+  abusive_user_checker:
+    build:
+      context: '.'
+      dockerfile: './services/abusive-user-checker/Dockerfile'
+    volumes:
+      - './.env:/.env'
     depends_on:
       - 'db'
       - 'prometheus'
