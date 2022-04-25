@@ -905,6 +905,11 @@ configstore@^5.0.1:
     write-file-atomic "^3.0.0"
     xdg-basedir "^4.0.0"
 
+confusables@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/confusables/-/confusables-1.1.0.tgz#91eeca670e185c46a1ede0940dcb30b4939ff4fa"
+  integrity sha512-jKqTxrTLsuwf1rUpKPU99cpDIxd+MB7nQuzV+tXjXzp+vbL6/0U0gN9DfjAOjgTnDJ7yvWFoT/xXnoFCqlw1Jw==
+
 console-control-strings@^1.0.0, console-control-strings@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/console-control-strings/-/console-control-strings-1.1.0.tgz#3d7cf4464db6446ea644bf4b39507f9851008e8e"

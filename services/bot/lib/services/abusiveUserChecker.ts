@@ -7,6 +7,7 @@ import {
   CheckImageResponse,
 } from '../protos/abusiveUserChecker_pb';
 import {User} from 'discord.js';
+import {remove} from 'confusables';
 
 export class AbusiveUserChecker {
   #checkerService = new AbusiveUserServiceClient(
@@ -37,17 +38,14 @@ export class AbusiveUserChecker {
     });
   }
 
-  // TODO: call from grpc instead of keywords?
   // TODO: near match usernames?
   checkUsername(username: string): boolean {
-    const normalized = username.replace(/\s/g, '').toLowerCase();
+    const normalized = remove(username).replace(/\s/g, '').toLowerCase();
 
     const keywords = [
       'academy',
       'bot',
       'dev',
-      'developer',
-      'developers',
       'discord',
       'employee',
       'events',
@@ -55,10 +53,6 @@ export class AbusiveUserChecker {
       'hypesquad',
       'message',
       'mod',
-      'moderation',
-      'moderator',
-      'moderators',
-      'modmail',
       'notif',
       'staff',
       'system',
