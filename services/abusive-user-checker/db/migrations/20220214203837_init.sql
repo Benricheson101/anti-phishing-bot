@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TABLE images (
   id SERIAL PRIMARY KEY,
-  source text UNIQUE NOT NULL,
+  source text UNIQUE,
 
   md5 TEXT UNIQUE NOT NULL,
   sha256 TEXT UNIQUE NOT NULL,
