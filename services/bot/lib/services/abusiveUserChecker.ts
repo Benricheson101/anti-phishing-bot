@@ -6,6 +6,7 @@ import {
   CheckImageRequest,
   CheckImageResponse,
 } from '../protos/abusiveUserChecker_pb';
+import {Client} from '..';
 import {User} from 'discord.js';
 import {remove} from 'confusables';
 
@@ -16,6 +17,8 @@ export class AbusiveUserChecker {
   );
 
   readonly imageThreshold = 5;
+
+  constructor(private client: Client) {}
 
   async checkImage(url: string): Promise<CheckImageResponse | undefined> {
     const u = new URL(url);
@@ -98,6 +101,9 @@ export class AbusiveUserChecker {
 
       if (checkedAvatar.getPhashDistance() <= this.imageThreshold) {
         verdict.matchedAvatar = true;
+
+        this.client.metrics.addAbusiveUser(verdict);
+
         return verdict;
       }
     } catch (err) {

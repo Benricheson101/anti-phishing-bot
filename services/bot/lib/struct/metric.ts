@@ -1,4 +1,5 @@
 import {Client} from './client';
+import {CheckedUser} from '../services/abusiveUserChecker';
 import {collectDefaultMetrics, Gauge} from 'prom-client';
 
 export class Metrics {
@@ -47,6 +48,12 @@ export class Metrics {
     labelNames: ['event'],
   });
 
+  readonly abusiveUsers = new Gauge({
+    name: 'abusive_users',
+    help: 'the number of abusive users detected automatically',
+    labelNames: ['distance', 'username', 'phash'],
+  });
+
   constructor(private client: Client) {
     collectDefaultMetrics();
   }
@@ -81,5 +88,13 @@ export class Metrics {
 
   addGatewayEvent(event: string) {
     this.gatewayEvents.inc({event});
+  }
+
+  addAbusiveUser(verdict: CheckedUser) {
+    this.abusiveUsers.inc({
+      distance: verdict.nearestAvatar?.getPhashDistance(),
+      phash: verdict.nearestAvatar?.getHashes()?.getPhash(),
+      username: verdict.user.username,
+    });
   }
 }
