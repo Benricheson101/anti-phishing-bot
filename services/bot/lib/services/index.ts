@@ -9,7 +9,7 @@ export class ServiceManager {
 
   constructor(client: Client) {
     this.domainManager = new DomainManager(client);
-    this.abusiveUserChecker = new AbusiveUserChecker();
+    this.abusiveUserChecker = new AbusiveUserChecker(client);
 
     this.domainManager.up();
   }
