@@ -1,8 +1,10 @@
 name: 'Publish Docker image'
 
+# on:
+#   push:
+#     branches: ['main']
 on:
   push:
-    branches: ['main']
 
 jobs:
   push_to_registries:
@@ -11,6 +13,18 @@ jobs:
     permissions:
       packages: 'write'
       contents: 'read'
+    strategy:
+      matrix:
+        include:
+          - dockerfile: './services/bot/Dockerfile'
+            images: |
+              benricheson101/fish-bot
+              ghcr.io/${{ github.actor }}/fish-bot
+          - dockerfile: './services/abusive-user-checker/Dockerfile'
+            images: |
+              benricheson101/fish-abusive-user-service
+              ghcr.io/${{ github.actor }}/fish-abusive-user-service
+
     steps:
       - name: 'Check out the repo'
         uses: 'actions/checkout@v2'
@@ -32,14 +46,13 @@ jobs:
         id: 'meta'
         uses: 'docker/metadata-action@v3'
         with:
-          images: |
-            benricheson101/fish
-            ghcr.io/${{ github.repository }}
+          images: '${{ matrix.images }}'
 
       - name: 'Build and push Docker images'
         uses: 'docker/build-push-action@v2'
         with:
           context: '.'
-          push: true
+          file: '${{ matrix.dockerfile }}'
+          push: false
           tags: '${{ steps.meta.outputs.tags }}'
           labels: '${{ steps.meta.outputs.labels }}'
