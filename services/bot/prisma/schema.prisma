@@ -8,15 +8,15 @@ generator client {
 }
 
 model GuildConfigs {
-  id                       String       @unique
-  delete                   Boolean      @default(true)
-  action                   ActionKind   @default(NONE)
-  logChannel               String?      @map("log_channel")
-  muteRole                 String?      @map("mute_role")
-  notify                   Boolean?     @default(false)
-  timeoutDuration          BigInt       @default(604800000) @map("timeout_duration") // 1w
-  enableAbusiveUserChecker Boolean      @default(true) @map("enable_abusive_user_checker")
-  exemptions               Exemptions[]
+  id                String       @unique
+  delete            Boolean      @default(true)
+  phishingAction    ActionKind   @default(NONE) @map("phishing_action")
+  abusiveUserAction ActionKind   @default(KICK) @map("abusive_user_action")
+  logChannel        String?      @map("log_channel")
+  muteRole          String?      @map("mute_role")
+  notify            Boolean?     @default(false)
+  timeoutDuration   BigInt       @default(604800000) @map("timeout_duration") // 1w
+  exemptions        Exemptions[]
 }
 
 model Exemptions {

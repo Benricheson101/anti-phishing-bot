@@ -37,21 +37,33 @@ export class AbusiveUserChecker {
     });
   }
 
-  // TODO: call from grpc instead of keywords
+  // TODO: call from grpc instead of keywords?
   // TODO: near match usernames?
-  async checkUsername(username: string): Promise<boolean> {
+  checkUsername(username: string): boolean {
     const normalized = username.replace(/\s/g, '').toLowerCase();
 
     const keywords = [
       'academy',
+      'bot',
       'dev',
+      'developer',
+      'developers',
       'discord',
       'employee',
       'events',
       'hype',
+      'hypesquad',
       'message',
       'mod',
+      'moderation',
+      'moderator',
+      'moderators',
+      'modmail',
+      'notif',
       'staff',
+      'system',
+      'team',
+      'terms',
     ];
 
     return keywords.some(w => normalized.includes(w));
@@ -69,7 +81,7 @@ export class AbusiveUserChecker {
       return verdict;
     }
 
-    const usernameMatches = await this.checkUsername(u.username);
+    const usernameMatches = this.checkUsername(u.username);
     if (!usernameMatches) {
       return verdict;
     }
@@ -78,7 +90,7 @@ export class AbusiveUserChecker {
 
     const av = u.avatarURL({dynamic: false, format: 'png', size: 4096});
     if (!av) {
-      // TODO: what should happen if they don't have a username?
+      // TODO: what should happen if they don't have an avatar?
       return verdict;
     }
 

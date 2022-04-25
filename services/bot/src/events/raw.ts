@@ -1,7 +1,7 @@
-import {Event} from 'fish';
+import {ClientEventNames, Event} from 'fish';
 
 export class RawEvent extends Event {
-  name = 'raw';
+  name = 'raw' as ClientEventNames;
 
   async run(data: {t: string | null}) {
     const evt = data.t;

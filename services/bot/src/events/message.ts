@@ -1,9 +1,9 @@
 import {ActionKind} from '@prisma/client';
 import {Message} from 'discord.js';
-import {Event} from 'fish';
+import {ClientEventNames, Event} from 'fish';
 
 export class MessageCreateEvent extends Event {
-  name = 'messageCreate';
+  name: ClientEventNames = 'messageCreate';
 
   async run(msg: Message) {
     const {content, member} = msg;
@@ -44,8 +44,8 @@ export class MessageCreateEvent extends Event {
               actions.push('DELETE');
             }
 
-            if (guildConfig.action !== ActionKind.NONE) {
-              actions.push(guildConfig.action);
+            if (guildConfig.phishingAction !== ActionKind.NONE) {
+              actions.push(guildConfig.phishingAction);
             }
 
             await msg.member?.send({
@@ -69,7 +69,7 @@ export class MessageCreateEvent extends Event {
           }
         }
 
-        switch (guildConfig.action) {
+        switch (guildConfig.phishingAction) {
           case 'NONE':
             break;
 
@@ -147,7 +147,7 @@ export class MessageCreateEvent extends Event {
           }
         }
 
-        await this.client.logger.action(
+        await this.client.logger.phishAction(
           msg.guild!.id,
           msg.author,
           hitDomain,

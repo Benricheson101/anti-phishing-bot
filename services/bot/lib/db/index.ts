@@ -11,6 +11,6 @@ export class Database {
 
   constructor(prisma: PrismaClient) {
     this.guildConfigs = new GuildConfigStore(prisma);
-    this.exemptions = new ExemptionStore(prisma);
+    this.exemptions = new ExemptionStore(this, prisma);
   }
 }

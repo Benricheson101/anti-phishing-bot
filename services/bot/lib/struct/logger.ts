@@ -1,11 +1,11 @@
-import {GuildConfigs} from '@prisma/client';
+import {ActionKind, GuildConfigs} from '@prisma/client';
 import {GuildChannel, ThreadChannel, User} from 'discord.js';
 import {Client} from './client';
 
 export class Logger {
   constructor(private client: Client) {}
 
-  async action(
+  async phishAction(
     guildId: string,
     user: User,
     domain: string,
@@ -20,12 +20,30 @@ export class Logger {
       }
 
       await channel.send({
-        content: this.genLogMessage(user, domain, taken, failed),
+        content: this.genPhishingLogMessage(user, domain, taken, failed),
         allowedMentions: {parse: []},
       });
     } catch {
       //
     }
+  }
+
+  async abusiveUserAction(
+    guildId: string,
+    user: User,
+    action: ActionKind,
+    success: boolean
+  ) {
+    const [channel, guild] = await this.getGuildInfo(guildId);
+
+    if (!channel || !channel.isText() || !guild) {
+      return;
+    }
+
+    await channel.send({
+      content: this.genAbusiveUserLogMessage(user, success, action),
+      allowedMentions: {parse: []},
+    });
   }
 
   private async getGuildInfo(
@@ -44,7 +62,7 @@ export class Logger {
     return [channel, guild];
   }
 
-  private genLogMessage(
+  private genPhishingLogMessage(
     user: User,
     domain: string,
     taken: string[],
@@ -62,6 +80,18 @@ export class Logger {
       return `:warning: Unable to execute action ${failed
         .map(a => `\`${a}\``)
         .join(', ')} on user ${user} (**${user.tag}**, \`${user.id}\`).`;
+    }
+  }
+
+  private genAbusiveUserLogMessage(
+    user: User,
+    success: boolean,
+    action: ActionKind
+  ) {
+    if (success) {
+      return `:hammer: Abusive user detected: ${user} (**${user.tag}**, \`${user.id}\`). Action taken: \`${action}\``;
+    } else {
+      return `:warning: Failed to run \`${action}\` action on detected abusive user: ${user} (**${user.tag}**, \`${user.id}\`).`;
     }
   }
 }

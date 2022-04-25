@@ -1,6 +1,7 @@
 import {ExemptionKind, GuildConfigs} from '@prisma/client';
 import {
   APIApplicationCommandOption,
+  APIApplicationCommandOptionChoice,
   ApplicationCommandOptionType,
 } from 'discord-api-types';
 import {CommandInteraction, Permissions} from 'discord.js';
@@ -8,6 +9,32 @@ import ms, {StringValue} from 'ms';
 import {Command} from 'fish';
 
 const MAX_TIMEOUT_DURATION = ms('28d');
+const ACTION_KIND_OPTIONS: APIApplicationCommandOptionChoice[] = [
+  {
+    name: 'Ban',
+    value: 'BAN',
+  },
+  {
+    name: 'Softban',
+    value: 'SOFTBAN',
+  },
+  {
+    name: 'Kick',
+    value: 'KICK',
+  },
+  {
+    name: 'Mute',
+    value: 'MUTE',
+  },
+  {
+    name: 'Timeout',
+    value: 'TIMEOUT',
+  },
+  {
+    name: 'None',
+    value: 'NONE',
+  },
+];
 
 export class ConfigCommand extends Command {
   name = 'config';
@@ -31,35 +58,18 @@ export class ConfigCommand extends Command {
           type: ApplicationCommandOptionType.Boolean,
         },
         {
-          name: 'action',
-          description: 'What action should be taken?',
+          name: 'phishing_action',
+          description:
+            'What action should be taken when a user posts a phishing link?',
           type: ApplicationCommandOptionType.String,
-          choices: [
-            {
-              name: 'Ban',
-              value: 'BAN',
-            },
-            {
-              name: 'Softban',
-              value: 'SOFTBAN',
-            },
-            {
-              name: 'Kick',
-              value: 'KICK',
-            },
-            {
-              name: 'Mute',
-              value: 'MUTE',
-            },
-            {
-              name: 'Timeout',
-              value: 'TIMEOUT',
-            },
-            {
-              name: 'None',
-              value: 'NONE',
-            },
-          ],
+          choices: ACTION_KIND_OPTIONS,
+        },
+        {
+          name: 'abusive_user_action',
+          description:
+            'What action should be taken when an abusive user is detected?',
+          type: ApplicationCommandOptionType.String,
+          choices: ACTION_KIND_OPTIONS,
         },
         {
           name: 'log_channel',
@@ -199,8 +209,12 @@ export class ConfigCommand extends Command {
               value: 'delete',
             },
             {
-              name: 'action',
-              value: 'action',
+              name: 'phishing_action',
+              value: 'phishingAction',
+            },
+            {
+              name: 'abusive_user_action',
+              value: 'abusiveUserAction',
             },
             {
               name: 'log_channel',
@@ -308,7 +322,7 @@ export class ConfigCommand extends Command {
                 content: `:white_check_mark: Created \`${kind}\` exemption for \`id=${id}\``,
                 ephemeral: true,
               });
-            } catch {
+            } catch (err) {
               await i.reply({
                 content: ':x: This exemption already exists!',
                 ephemeral: true,
@@ -382,17 +396,21 @@ export class ConfigCommand extends Command {
               return;
             }
 
+            const snakeToCamel = (s: string) =>
+              s.replace(/_([a-z])/g, l => l[1].toUpperCase());
+
             // TODO: this is awful
             const update: Record<string, string | number | BigInt | boolean> =
               {};
             for (const op of data.options || []) {
-              if (op.name === 'log_channel') {
-                op.name = 'logChannel';
-              } else if (op.name === 'mute_role') {
-                op.name = 'muteRole';
-              }
+              op.name = snakeToCamel(op.name);
+              // if (op.name === 'log_channel') {
+              //   op.name = 'logChannel';
+              // } else if (op.name === 'mute_role') {
+              //   op.name = 'muteRole';
+              // }
 
-              if (op.name === 'timeout_duration') {
+              if (op.name === 'timeoutDuration') {
                 const val = ms(op.value! as StringValue);
                 if (isNaN(val)) {
                   await i.reply({
@@ -445,7 +463,8 @@ export class ConfigCommand extends Command {
 
             const DEFAULTS: Record<string, string | BigInt | boolean | null> = {
               delete: true,
-              action: 'NONE',
+              phishingAction: 'NONE',
+              abusiveUserAction: 'KICK',
               muteRole: null,
               logChannel: null,
               timeoutDuration: 604800000n,

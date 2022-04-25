@@ -1,7 +1,7 @@
-import {Event} from 'fish';
+import {ClientEventNames, Event} from 'fish';
 
 export class ReadyEvent extends Event {
-  name = 'ready';
+  name: ClientEventNames = 'ready';
 
   async run() {
     console.log('Ready as', this.client.user?.tag);
