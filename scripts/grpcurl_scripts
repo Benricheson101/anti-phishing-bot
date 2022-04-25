@@ -13,3 +13,7 @@ check_image() {
 remove_image() {
   grpcurl --plaintext -d "{\"id\": \"$1\"}" $ADDR fish.AbusiveUserService.RemoveImage
 }
+
+add_local_image() {
+  grpcurl --plaintext -d "{\"image\": \"$(base64 "$1")\"}" $ADDR fish.AbusiveUserService.AddImage
+}

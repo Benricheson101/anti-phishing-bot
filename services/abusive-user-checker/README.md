@@ -31,7 +31,7 @@ grpcurl \
   --plaintext \
   -d '{"url": "https://cdn.discordapp.com/attachments/591093389366263828/942891874790821918/ben_wah_ben_wah_but_pink.png"}' \
   localhost:3000 \
-  fish.HasherService.AddImageFromURL
+  fish.AbusiveUserService.AddImageFromURL
 ```
 
 returns
@@ -53,7 +53,7 @@ grpcurl \
   --plaintext \
   -d '{"url": "https://cdn.discordapp.com/attachments/591093389366263828/942891874790821918/ben_wah_ben_wah_but_pink.png"}' \
   localhost:3000 \
-  fish.CheckerService.CheckImage
+  fish.AbusiveUserService.CheckImage
 ```
 
 returns

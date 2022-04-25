@@ -20,17 +20,10 @@ type AbusiveUserServiceServer struct {
 	protos.UnimplementedAbusiveUserServiceServer
 }
 
-func (*AbusiveUserServiceServer) AddImageFromURL(ctx context.Context, req *protos.AddImageFromURLRequest) (*protos.AddImageResponse, error) {
-	url := req.GetUrl()
-	dlImg, err := utils.DownloadImage(url)
-	if err != nil {
-		fmt.Println("failed to download image:", err)
-		return nil, err
-	}
-
+func addImage(img []byte, url *string) (*protos.AddImageResponse, error) {
 	ret := &protos.AddImageResponse{}
 
-	hashes := hasher.HashImage(dlImg)
+	hashes := hasher.HashImage(img)
 	ret.Hashes = hashes.ToProtobuf()
 
 	dbImg := hashes.ToDBImage()
@@ -50,6 +43,22 @@ func (*AbusiveUserServiceServer) AddImageFromURL(ctx context.Context, req *proto
 	ret.Id = int32(dbImg.Id)
 
 	return ret, nil
+}
+
+func (*AbusiveUserServiceServer) AddImageFromURL(ctx context.Context, req *protos.AddImageFromURLRequest) (*protos.AddImageResponse, error) {
+	url := req.GetUrl()
+	dlImg, err := utils.DownloadImage(url)
+	if err != nil {
+		fmt.Println("failed to download image:", err)
+		return nil, err
+	}
+
+	return addImage(dlImg, &url)
+}
+
+func (*AbusiveUserServiceServer) AddImage(ctx context.Context, req *protos.AddImageRequest) (*protos.AddImageResponse, error) {
+	img := req.GetImage()
+	return addImage(img, nil)
 }
 
 func (*AbusiveUserServiceServer) RemoveImage(ctx context.Context, req *protos.RemoveImageRequest) (*protos.RemoveImageResponse, error) {

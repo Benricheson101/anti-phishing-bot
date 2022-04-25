@@ -6,6 +6,9 @@ service AbusiveUserService {
   // Hashes an image from a URL and adds it to the database
   rpc AddImageFromURL(AddImageFromURLRequest) returns (AddImageResponse);
 
+  // Adds an image
+  rpc AddImage(AddImageRequest) returns (AddImageResponse);
+
   // Removes a hashed image from the database
   rpc RemoveImage(RemoveImageRequest) returns (RemoveImageResponse);
 
@@ -21,6 +24,10 @@ message ImageHashes {
 
 message AddImageFromURLRequest {
   string url = 1;
+}
+
+message AddImageRequest {
+  bytes image = 1;
 }
 
 message AddImageResponse {
@@ -41,6 +48,6 @@ message CheckImageRequest {
 message CheckImageResponse {
   int32 id = 1;
   int32 phash_distance = 2;
-  string source = 3;
+  optional string source = 3;
   ImageHashes hashes = 4;
 }

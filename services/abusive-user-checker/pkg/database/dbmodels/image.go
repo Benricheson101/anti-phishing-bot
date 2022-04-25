@@ -9,8 +9,8 @@ import (
 type DBImage struct {
 	bun.BaseModel `bun:"table:images"`
 
-	Id     int64  `bun:"id,pk,autoincrement"`
-	Source string `bun:"source,unique,notnull"`
+	Id     int64   `bun:"id,pk,autoincrement"`
+	Source *string `bun:"source,unique"`
 
 	MD5    string `bun:"md5,unique,notnull"`
 	SHA256 string `bun:"sha256,unique,notnull"`
