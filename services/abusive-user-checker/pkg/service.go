@@ -103,10 +103,17 @@ func (*AbusiveUserServiceServer) CheckImage(ctx context.Context, req *protos.Che
 		return nil, err
 	}
 
+	// proto3 removed the ability to make nullable fields,
+	// so ill use an empty string instead
+	source := ""
+	if checked.Source != nil {
+		source = *checked.Source
+	}
+
 	return &protos.CheckImageResponse{
 		Id:            int32(checked.Id),
 		PhashDistance: int32(checked.HammingDistance),
-		Source:        checked.Source,
+		Source:        source,
 		Hashes: &protos.ImageHashes{
 			Md5:    checked.MD5,
 			Sha256: checked.SHA256,
