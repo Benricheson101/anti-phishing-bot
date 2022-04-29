@@ -48,6 +48,6 @@ message CheckImageRequest {
 message CheckImageResponse {
   int32 id = 1;
   int32 phash_distance = 2;
-  optional string source = 3;
+  string source = 3;
   ImageHashes hashes = 4;
 }
