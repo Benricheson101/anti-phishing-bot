@@ -31,7 +31,7 @@ export class CheckMembersCommand extends Command {
       ])
     ) {
       await i.reply({
-        content: ':x: You do not have permission to use this menu.',
+        content: ':x: You do not have permission to use this command.',
         ephemeral: true,
       });
 
