@@ -1,5 +1,6 @@
 import {Interaction} from 'discord.js';
 import {ClientEventNames, Event} from 'fish';
+import {handleCheckMembersButton} from '../buttons/checkMembers';
 
 export class InteractionCreateEvent extends Event {
   name: ClientEventNames = 'interactionCreate';
@@ -14,6 +15,14 @@ export class InteractionCreateEvent extends Event {
           this.client.metrics.addCommandUsage(i.commandName, true);
         } catch {
           this.client.metrics.addCommandUsage(i.commandName, false);
+        }
+      }
+    } else if (i.isButton()) {
+      const [kind] = i.customId.split(':');
+      switch (kind) {
+        case 'check_members': {
+          await handleCheckMembersButton(this.client, i);
+          break;
         }
       }
     }

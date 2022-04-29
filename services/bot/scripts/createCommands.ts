@@ -10,7 +10,12 @@ const guild = process.env.GUILD;
   const client = new Client();
   await client.loadCommands();
 
-  const cmds = client.cmds.map(c => c.toJSON());
+  let cmds = client.cmds.map(c => c.toJSON());
+
+  const selectCommands = process.argv.slice(2);
+  if (selectCommands.length) {
+    cmds = cmds.filter(c => selectCommands.includes(c.name));
+  }
 
   const rest = new REST().setToken(TOKEN);
 

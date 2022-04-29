@@ -23,7 +23,7 @@ export class AbusiveUserChecker {
   async checkImage(url: string): Promise<CheckImageResponse | undefined> {
     const u = new URL(url);
     if (!u.searchParams.has('size')) {
-      u.searchParams.append('size', '4096');
+      u.searchParams.append('size', '512');
     }
 
     const req = new CheckImageRequest();
@@ -47,6 +47,7 @@ export class AbusiveUserChecker {
 
     const keywords = [
       'academy',
+      'agent',
       'bot',
       'dev',
       'discord',
@@ -57,6 +58,7 @@ export class AbusiveUserChecker {
       'message',
       'mod',
       'notif',
+      'recurit',
       'staff',
       'system',
       'team',
