@@ -34,9 +34,7 @@ const run = async (client: Client, member: GuildMember) => {
     return;
   }
 
-  const checked = await client.services.abusiveUserChecker.checkUser(
-    member.user
-  );
+  const checked = await client.services.abusiveUserChecker.checkMember(member);
 
   if (!(checked.matchedUsername && checked.matchedAvatar)) {
     return;
