@@ -28,6 +28,10 @@ export class MemberUpdateEvent extends Event {
 }
 
 const run = async (client: Client, member: GuildMember) => {
+  if (member.partial) {
+    member = await member.fetch();
+  }
+
   const config = await client.db.guildConfigs.getOrCreate(member.guild.id);
 
   if (config.abusiveUserAction === ActionKind.NONE) {
