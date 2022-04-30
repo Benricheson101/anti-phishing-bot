@@ -1,4 +1,8 @@
 import {ButtonInteraction, MessageAttachment, Permissions} from 'discord.js';
+import {
+  MessageButtonStyles,
+  MessageComponentTypes,
+} from 'discord.js/typings/enums';
 import {Client} from 'fish';
 
 export const handleCheckMembersButton = async (
@@ -25,7 +29,20 @@ export const handleCheckMembersButton = async (
 
   const clearButtons = () =>
     i.update({
-      components: [],
+      components: [
+        {
+          type: MessageComponentTypes.ACTION_ROW,
+          components: [
+            {
+              type: MessageComponentTypes.BUTTON,
+              style: MessageButtonStyles.SUCCESS,
+              label: 'User IDs',
+              emoji: '📁',
+              customId: 'check_members:SEND_IDS',
+            },
+          ],
+        },
+      ],
     });
 
   if (!users || !users.length) {
@@ -56,6 +73,15 @@ export const handleCheckMembersButton = async (
       if (!i.memberPermissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
         await i.reply({
           content: ':x: You do not have permission to use this command',
+          ephemeral: true,
+        });
+
+        return;
+      }
+
+      if (!i.guild?.me?.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
+        await i.reply({
+          content: ':x: I do not have ban permissions in this server',
           ephemeral: true,
         });
 
@@ -94,6 +120,15 @@ export const handleCheckMembersButton = async (
         return;
       }
 
+      if (!i.guild?.me?.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
+        await i.reply({
+          content: ':x: I do not have ban permissions in this server',
+          ephemeral: true,
+        });
+
+        return;
+      }
+
       await clearButtons();
 
       let successfulBans = 0;
@@ -126,6 +161,15 @@ export const handleCheckMembersButton = async (
       if (!i.memberPermissions.has(Permissions.FLAGS.KICK_MEMBERS)) {
         await i.reply({
           content: ':x: You do not have permission to use this command',
+          ephemeral: true,
+        });
+
+        return;
+      }
+
+      if (!i.guild?.me?.permissions.has(Permissions.FLAGS.KICK_MEMBERS)) {
+        await i.reply({
+          content: ':x: I do not have kick permissions in this server',
           ephemeral: true,
         });
 

@@ -7,7 +7,7 @@ import {Command} from 'fish';
 
 // { 'guildID' => lastUsedAt }
 const cooldowns = new Map<string, number>();
-const COOLDOWN = 1_000 * 60 * 5; // 5 minutes
+const COOLDOWN = 1_000 * 60; // 1 minute
 
 export class CheckMembersCommand extends Command {
   name = 'check_members';
