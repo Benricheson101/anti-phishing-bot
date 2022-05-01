@@ -1,4 +1,5 @@
 import {PrismaClient} from '@prisma/client';
+
 import {ExemptionStore} from './exemptions';
 import {GuildConfigStore} from './guildConfigs';
 

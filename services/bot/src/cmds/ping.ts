@@ -1,4 +1,5 @@
 import {CommandInteraction} from 'discord.js';
+
 import {Command} from 'fish';
 
 export class PingCommand extends Command {

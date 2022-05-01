@@ -1,5 +1,6 @@
 import {ActionKind} from '@prisma/client';
 import {Message} from 'discord.js';
+
 import {ClientEventNames, Event} from 'fish';
 
 export class MessageCreateEvent extends Event {

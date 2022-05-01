@@ -1,14 +1,14 @@
+import {credentials} from '@grpc/grpc-js';
+import {remove} from 'confusables';
+import {GuildMember, User} from 'discord.js';
 import {URL} from 'url';
 
-import {credentials} from '@grpc/grpc-js';
+import {Client} from '..';
 import {AbusiveUserServiceClient} from '../protos/abusiveUserChecker_grpc_pb';
 import {
   CheckImageRequest,
   CheckImageResponse,
 } from '../protos/abusiveUserChecker_pb';
-import {Client} from '..';
-import {GuildMember, User} from 'discord.js';
-import {remove} from 'confusables';
 
 export class AbusiveUserChecker {
   #checkerService = new AbusiveUserServiceClient(

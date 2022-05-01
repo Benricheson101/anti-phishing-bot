@@ -1,5 +1,6 @@
-import {Routes} from 'discord-api-types/v9';
 import {REST} from '@discordjs/rest';
+import {Routes} from 'discord-api-types/v9';
+
 import {Client} from '../lib';
 
 const TOKEN = process.env.DISCORD_TOKEN!;

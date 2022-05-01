@@ -1,4 +1,5 @@
 import {ClientEvents} from 'discord.js';
+
 import {Client} from 'fish';
 
 export type ClientEventNames = keyof ClientEvents;

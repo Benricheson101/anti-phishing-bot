@@ -1,6 +1,7 @@
 import {ActionKind} from '@prisma/client';
 import {GuildMember} from 'discord.js';
-import {ClientEventNames, Event, doAction, Client} from 'fish';
+
+import {Client, ClientEventNames, Event, doAction} from 'fish';
 
 export class MemberJoinEvent extends Event {
   name: ClientEventNames = 'guildMemberAdd';

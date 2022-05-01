@@ -1,8 +1,9 @@
-import './server';
-
-import {join} from 'path';
 import {Options} from 'discord.js';
+import {join} from 'path';
+
 import {Client} from 'fish';
+
+import './server';
 
 new Client({
   cmdDir: join(__dirname, './cmds'),

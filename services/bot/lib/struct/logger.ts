@@ -1,5 +1,6 @@
 import {ActionKind, GuildConfigs} from '@prisma/client';
 import {GuildChannel, ThreadChannel, User} from 'discord.js';
+
 import {Client} from './client';
 
 export class Logger {

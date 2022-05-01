@@ -1,5 +1,6 @@
 import {ExemptionKind, Exemptions, PrismaClient} from '@prisma/client';
 import {GuildMember} from 'discord.js';
+
 import {Database} from '.';
 
 export class ExemptionStore {

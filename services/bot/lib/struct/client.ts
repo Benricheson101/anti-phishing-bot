@@ -1,13 +1,13 @@
-import {Client as DJSClient, ClientOptions, Collection} from 'discord.js';
-import {Command, Database, Event, ServiceManager} from '..';
-
+import {PrismaClient} from '@prisma/client';
+import {ClientOptions, Collection, Client as DJSClient} from 'discord.js';
 import {promises} from 'fs';
 import {join} from 'path';
 
-import readdir = promises.readdir;
-import {PrismaClient} from '@prisma/client';
+import {Command, Database, Event, ServiceManager} from '..';
 import {Logger} from './logger';
 import {Metrics} from './metric';
+
+import readdir = promises.readdir;
 
 export class Client extends DJSClient {
   metrics = new Metrics(this);

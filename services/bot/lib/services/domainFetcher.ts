@@ -1,6 +1,7 @@
-import {Client, DOMAIN_REGEX} from '..';
-import {fetch, request} from 'undici';
 import {createHash} from 'crypto';
+import {fetch, request} from 'undici';
+
+import {Client, DOMAIN_REGEX} from '..';
 
 const DISCORD_BAD_DOMAINS =
   'https://cdn.discordapp.com/bad-domains/hashes.json';

@@ -1,6 +1,7 @@
-import {Client} from './client';
+import {Gauge, collectDefaultMetrics} from 'prom-client';
+
 import {CheckedUser} from '../services/abusiveUserChecker';
-import {collectDefaultMetrics, Gauge} from 'prom-client';
+import {Client} from './client';
 
 export class Metrics {
   readonly domainHits = new Gauge({
