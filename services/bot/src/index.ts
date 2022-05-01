@@ -9,7 +9,6 @@ new Client({
   evtDir: join(__dirname, './events'),
   intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MEMBERS'],
   shardCount: Number(process.env.SHARD_COUNT) || undefined,
-  partials: ['GUILD_MEMBER'],
   makeCache: Options.cacheWithLimits({
     ApplicationCommandManager: 0,
     BaseGuildEmojiManager: 0,
