@@ -7,7 +7,7 @@ import {
   CheckImageResponse,
 } from '../protos/abusiveUserChecker_pb';
 import {Client} from '..';
-import {User} from 'discord.js';
+import {GuildMember, User} from 'discord.js';
 import {remove} from 'confusables';
 
 export class AbusiveUserChecker {
@@ -15,6 +15,8 @@ export class AbusiveUserChecker {
     process.env.GRPC_CHECKER_SERVICE_URL,
     credentials.createInsecure()
   );
+
+  cache: Map<string, CheckedUser> = new Map();
 
   readonly imageThreshold = 5;
 
@@ -69,26 +71,49 @@ export class AbusiveUserChecker {
   }
 
   // TODO: this should probably return more data, like hash distance
-  async checkUser(u: User): Promise<CheckedUser> {
+  async checkMember(m: GuildMember): Promise<CheckedUser> {
+    const u = m.user;
+
+    const cacheKey = JSON.stringify({
+      id: u.id,
+      username: u.username,
+      avatar: u.avatar,
+    });
+
     const verdict: CheckedUser = {
       user: u,
       matchedUsername: false,
       matchedAvatar: false,
     };
 
-    if (u.bot) {
+    if (u.bot || u.avatar?.startsWith('a_')) {
+      this.cache.set(cacheKey, verdict);
       return verdict;
     }
 
+    // filters out most users before making DB queries
     const usernameMatches = this.checkUsername(u.username);
     if (!usernameMatches) {
+      this.cache.set(cacheKey, verdict);
+      return verdict;
+    }
+    verdict.matchedUsername = true;
+
+    const isExempt = await this.client.db.exemptions.isExempt(m);
+
+    if (isExempt) {
+      this.cache.set(cacheKey, verdict);
       return verdict;
     }
 
-    verdict.matchedUsername = true;
+    const fromCache = this.cache.get(cacheKey);
+    if (fromCache) {
+      return fromCache;
+    }
 
     const av = u.avatarURL({dynamic: false, format: 'png', size: 4096});
     if (!av) {
+      this.cache.set(cacheKey, verdict);
       // TODO: what should happen if they don't have an avatar?
       return verdict;
     }
@@ -96,6 +121,7 @@ export class AbusiveUserChecker {
     try {
       const checkedAvatar = await this.checkImage(av);
       if (!checkedAvatar) {
+        this.cache.set(cacheKey, verdict);
         return verdict;
       }
 
@@ -106,12 +132,14 @@ export class AbusiveUserChecker {
 
         this.client.metrics.addAbusiveUser(verdict);
 
+        this.cache.set(cacheKey, verdict);
         return verdict;
       }
     } catch (err) {
       console.log(`failed to check for user ${u.id} ${av}:`, err);
     }
 
+    this.cache.set(cacheKey, verdict);
     return verdict;
   }
 }
