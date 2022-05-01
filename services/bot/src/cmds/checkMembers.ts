@@ -59,7 +59,9 @@ export class CheckMembersCommand extends Command {
 
     const members = await i.guild.members.fetch({force: true});
     const found = await Promise.all(
-      members.map(m => this.client.services.abusiveUserChecker.checkMember(m))
+      members.map(m =>
+        this.client.services.abusiveUserChecker.checkUser(m.user)
+      )
     ).then(c => c.filter(m => m.matchedUsername && m.matchedAvatar));
 
     const abusive = [...found];

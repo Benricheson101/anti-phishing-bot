@@ -7,7 +7,7 @@ import {
   CheckImageResponse,
 } from '../protos/abusiveUserChecker_pb';
 import {Client} from '..';
-import {GuildMember, User} from 'discord.js';
+import {User} from 'discord.js';
 import {remove} from 'confusables';
 
 export class AbusiveUserChecker {
@@ -69,21 +69,14 @@ export class AbusiveUserChecker {
   }
 
   // TODO: this should probably return more data, like hash distance
-  async checkMember(m: GuildMember): Promise<CheckedUser> {
-    const u = m.user;
+  async checkUser(u: User): Promise<CheckedUser> {
     const verdict: CheckedUser = {
       user: u,
       matchedUsername: false,
       matchedAvatar: false,
     };
 
-    if (u.bot || u.avatar?.startsWith('a_')) {
-      return verdict;
-    }
-
-    const isExempt = await this.client.db.exemptions.isExempt(m);
-
-    if (!isExempt) {
+    if (u.bot) {
       return verdict;
     }
 
