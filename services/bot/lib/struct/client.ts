@@ -44,8 +44,8 @@ export class Client extends DJSClient {
     const redis = createClient({url: process.env.REDIS_URL}) as RedisClientType;
     await redis.connect();
 
-    this.db = new Database(postgres);
     this.state = new State(redis);
+    this.db = new Database(postgres, this.state);
     this.logger = new Logger(this);
     this.services = new ServiceManager(this);
 

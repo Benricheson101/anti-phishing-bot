@@ -1,4 +1,4 @@
-import type {RedisClientType} from 'redis';
+import {RedisClientType} from 'redis';
 
 import {CheckMembersButtonCached} from '../protos/caches_pb';
 

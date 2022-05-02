@@ -1,9 +1,9 @@
 import {GuildConfigs, PrismaClient} from '@prisma/client';
 
-export class GuildConfigStore {
-  cache: Map<string, GuildConfigs> = new Map();
+import {GuildConfigState} from '../state/guildConfig';
 
-  constructor(private prisma: PrismaClient) {}
+export class GuildConfigStore {
+  constructor(private prisma: PrismaClient, readonly state: GuildConfigState) {}
 
   async add(guild: string) {
     const newConfig = await this.prisma.guildConfigs.create({
@@ -12,13 +12,13 @@ export class GuildConfigStore {
       },
     });
 
-    this.cache.set(guild, newConfig);
+    await this.state.set(guild, newConfig);
 
     return newConfig;
   }
 
   async get(guild: string): Promise<GuildConfigs | null> {
-    const fromCache = this.cache.get(guild);
+    const fromCache = await this.state.get(guild);
     if (fromCache) {
       return fromCache;
     }
@@ -28,7 +28,7 @@ export class GuildConfigStore {
     });
 
     if (fromDB) {
-      this.cache.set(guild, fromDB);
+      await this.state.set(guild, fromDB);
     }
 
     return fromDB;
@@ -44,7 +44,7 @@ export class GuildConfigStore {
   }
 
   async delete(guild: string) {
-    this.cache.delete(guild);
+    await this.state.del(guild);
     return this.prisma.guildConfigs.delete({where: {id: guild}});
   }
 
@@ -58,14 +58,14 @@ export class GuildConfigStore {
       },
     });
 
-    this.cache.set(guild, updated);
+    await this.state.set(guild, updated);
 
     return updated;
   }
 
   async exists(guild: string): Promise<boolean> {
     return (
-      this.cache.has(guild) ||
+      (await this.state.exists(guild)) ||
       this.prisma.guildConfigs
         .count({
           where: {id: guild},

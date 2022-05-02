@@ -40,7 +40,7 @@ export class ExemptionStore {
     });
 
     const exemption = created.exemptions[0];
-    this.db.guildConfigs.cache.set(guild, created);
+    await this.db.guildConfigs.state.set(guild, created);
     this.cache.set(`${guild}-${id}`, exemption);
     this.isExemptCache.set(`${guild}-${id}`, true);
 

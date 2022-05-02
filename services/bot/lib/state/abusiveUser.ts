@@ -1,7 +1,7 @@
 import {GuildMember} from 'discord.js';
 import {RedisClientType} from 'redis';
 
-import {BasicDiscordUser, CheckedUserCached} from '../protos/caches_pb';
+import {CheckedUserCached} from '../protos/caches_pb';
 import {CheckedUser} from '../services/abusiveUserChecker';
 
 export class AbusiveUserState {
@@ -19,7 +19,7 @@ export class AbusiveUserState {
     v.setMatchedAvatar(verdict.matchedAvatar);
     v.setNearestAvatar(verdict.nearestAvatar);
 
-    const u = new BasicDiscordUser();
+    const u = new CheckedUserCached.BasicDiscordUser();
     u.setId(m.user.id);
     u.setUsername(m.user.username);
     u.setDiscriminator(m.user.discriminator);
