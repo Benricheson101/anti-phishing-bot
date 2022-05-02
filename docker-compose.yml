@@ -40,6 +40,12 @@ services:
     volumes:
       - 'postgres_data:/var/lib/postgres/data'
 
+  redis:
+    image: 'redis'
+    restart: 'always'
+    volumes:
+      - 'redis_data:/data'
+
   grafana:
     image: 'grafana/grafana'
     ports:
@@ -60,6 +66,7 @@ services:
       - 'prometheus_data:/prometheus'
 
 volumes:
-  postgres_data:
   grafana_data:
+  postgres_data:
   prometheus_data:
+  redis_data:
