@@ -8,7 +8,7 @@ export class CheckMembersButtonState {
   constructor(private redis: RedisClientType) {}
 
   #cacheKey(msgID: string): string {
-    return `checkMemberButton:${msgID}`;
+    return `check_member_button:${msgID}`;
   }
 
   async set(msgID: string, ids: CheckMembersButtonStateValue) {

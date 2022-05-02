@@ -3,8 +3,24 @@ package fish;
 // not using in the go service but protoc will complain if I omit this
 option go_package = "pkg/protos";
 
+import "abusiveUserChecker.proto";
+
 // Stored when a user runs the `/check_members` command. Stores an array
 // of user IDs that will be accessed when an action button is pressed
 message CheckMembersButtonCached {
   repeated string members = 1;
+}
+
+message BasicDiscordUser {
+  string id = 1;
+  string username = 2;
+  string discriminator = 3;
+  string avatar = 4;
+}
+
+message CheckedUserCached {
+  BasicDiscordUser user = 1;
+  bool matched_username = 2;
+  bool matched_avatar = 3;
+  CheckImageResponse nearest_avatar = 4;
 }

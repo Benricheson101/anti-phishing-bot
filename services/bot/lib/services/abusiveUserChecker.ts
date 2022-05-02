@@ -16,17 +16,14 @@ export class AbusiveUserChecker {
     credentials.createInsecure()
   );
 
-  cache: Map<string, CheckedUser> = new Map();
-
   readonly imageThreshold = 5;
 
   constructor(private client: Client) {}
 
   async checkImage(url: string): Promise<CheckImageResponse | undefined> {
     const u = new URL(url);
-    if (!u.searchParams.has('size')) {
-      u.searchParams.append('size', '512');
-    }
+    // FIXME: in theory I could set this to 64x or even 32x, right?
+    u.searchParams.set('size', '256'); // limits unnecessary bandwidth usage
 
     const req = new CheckImageRequest();
     req.setUrl(u.toString());
@@ -74,12 +71,6 @@ export class AbusiveUserChecker {
   async checkMember(m: GuildMember): Promise<CheckedUser> {
     const u = m.user;
 
-    const cacheKey = JSON.stringify({
-      id: u.id,
-      username: u.username,
-      avatar: u.avatar,
-    });
-
     const verdict: CheckedUser = {
       user: u,
       matchedUsername: false,
@@ -87,33 +78,34 @@ export class AbusiveUserChecker {
     };
 
     if (u.bot || u.avatar?.startsWith('a_')) {
-      this.cache.set(cacheKey, verdict);
       return verdict;
     }
 
     // filters out most users before making DB queries
     const usernameMatches = this.checkUsername(u.username);
     if (!usernameMatches) {
-      this.cache.set(cacheKey, verdict);
       return verdict;
     }
     verdict.matchedUsername = true;
 
     const isExempt = await this.client.db.exemptions.isExempt(m);
-
     if (isExempt) {
-      this.cache.set(cacheKey, verdict);
       return verdict;
     }
 
-    const fromCache = this.cache.get(cacheKey);
+    const fromCache = await this.client.state.abusiveUser.get(m);
     if (fromCache) {
-      return fromCache;
+      return {
+        matchedUsername: fromCache.getMatchedUsername(),
+        matchedAvatar: fromCache.getMatchedAvatar(),
+        user: u,
+        nearestAvatar: fromCache.getNearestAvatar(),
+      };
     }
 
     const av = u.avatarURL({dynamic: false, format: 'png', size: 4096});
     if (!av) {
-      this.cache.set(cacheKey, verdict);
+      await this.client.state.abusiveUser.set(m, verdict);
       // TODO: what should happen if they don't have an avatar?
       return verdict;
     }
@@ -121,7 +113,7 @@ export class AbusiveUserChecker {
     try {
       const checkedAvatar = await this.checkImage(av);
       if (!checkedAvatar) {
-        this.cache.set(cacheKey, verdict);
+        await this.client.state.abusiveUser.set(m, verdict);
         return verdict;
       }
 
@@ -132,14 +124,14 @@ export class AbusiveUserChecker {
 
         this.client.metrics.addAbusiveUser(verdict);
 
-        this.cache.set(cacheKey, verdict);
+        await this.client.state.abusiveUser.set(m, verdict);
         return verdict;
       }
     } catch (err) {
       console.log(`failed to check for user ${u.id} ${av}:`, err);
     }
 
-    this.cache.set(cacheKey, verdict);
+    await this.client.state.abusiveUser.set(m, verdict);
     return verdict;
   }
 }
