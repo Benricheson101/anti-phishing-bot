@@ -2,8 +2,9 @@ import {PrismaClient} from '@prisma/client';
 import {ClientOptions, Collection, Client as DJSClient} from 'discord.js';
 import {promises} from 'fs';
 import {join} from 'path';
+import {RedisClientType, createClient} from 'redis';
 
-import {Command, Database, Event, ServiceManager} from '..';
+import {Command, Database, Event, ServiceManager, State} from '..';
 import {Logger} from './logger';
 import {Metrics} from './metric';
 
@@ -14,6 +15,7 @@ export class Client extends DJSClient {
 
   cmds = new Collection<string, Command>();
   db!: Database;
+  state!: State;
 
   services!: ServiceManager;
 
@@ -37,7 +39,13 @@ export class Client extends DJSClient {
     await this.loadCommands();
     await this.loadEvents();
 
-    this.db = new Database(new PrismaClient());
+    const postgres = new PrismaClient();
+
+    const redis = createClient({url: process.env.REDIS_URL}) as RedisClientType;
+    await redis.connect();
+
+    this.db = new Database(postgres);
+    this.state = new State(redis);
     this.logger = new Logger(this);
     this.services = new ServiceManager(this);
 

@@ -1,0 +1,10 @@
+syntax = "proto3";
+package fish;
+// not using in the go service but protoc will complain if I omit this
+option go_package = "pkg/protos";
+
+// Stored when a user runs the `/check_members` command. Stores an array
+// of user IDs that will be accessed when an action button is pressed
+message CheckMembersButtonCached {
+  repeated string members = 1;
+}
