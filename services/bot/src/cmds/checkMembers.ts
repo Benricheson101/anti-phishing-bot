@@ -6,6 +6,7 @@ import {
 
 import {Command} from 'fish';
 
+// TODO: move to redis?
 // { 'guildID' => lastUsedAt }
 const cooldowns = new Map<string, number>();
 const COOLDOWN = 1_000 * 60; // 1 minute
@@ -131,7 +132,7 @@ export class CheckMembersCommand extends Command {
       ],
     });
 
-    this.client.db.checkMembersButtonState.set(
+    await this.client.state.checkMembersButton.set(
       m.id,
       found.map(m => m.user.id)
     );

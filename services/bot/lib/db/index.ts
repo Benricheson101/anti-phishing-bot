@@ -1,5 +1,6 @@
 import {PrismaClient} from '@prisma/client';
 
+import {State} from '../state';
 import {ExemptionStore} from './exemptions';
 import {GuildConfigStore} from './guildConfigs';
 
@@ -10,10 +11,8 @@ export class Database {
   guildConfigs: GuildConfigStore;
   exemptions: ExemptionStore;
 
-  checkMembersButtonState = new Map<string, string[]>();
-
-  constructor(prisma: PrismaClient) {
-    this.guildConfigs = new GuildConfigStore(prisma);
-    this.exemptions = new ExemptionStore(this, prisma);
+  constructor(prisma: PrismaClient, state: State) {
+    this.guildConfigs = new GuildConfigStore(prisma, state.guildConfig);
+    this.exemptions = new ExemptionStore(this, prisma, state.exemption);
   }
 }
