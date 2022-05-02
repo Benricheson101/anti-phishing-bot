@@ -41,3 +41,12 @@ message GuildConfigCached {
   bool notify = 6;
   string timeout_duration = 7; // should be int64 but protoc doesnt like BitInt :<
 }
+
+message ExemptionCached {
+  enum ExemptionKind {
+    USER = 0;
+    ROLE = 1;
+  }
+
+  ExemptionKind kind = 1;
+}
