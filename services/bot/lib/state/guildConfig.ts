@@ -65,5 +65,5 @@ const protoToActionKind = (
   val: ProtoActionKind[keyof ProtoActionKind]
 ): ActionKind =>
   (Object.keys(GuildConfigCached.ActionKind) as (keyof ProtoActionKind)[]).find(
-    (k: keyof ProtoActionKind) => GuildConfigCached.ActionKind[k] === val
+    k => GuildConfigCached.ActionKind[k] === val
   )! as ActionKind;

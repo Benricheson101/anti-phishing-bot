@@ -41,7 +41,9 @@ export class Client extends DJSClient {
 
     const postgres = new PrismaClient();
 
-    const redis = createClient({url: process.env.REDIS_URL}) as RedisClientType;
+    const redis = createClient({
+      url: process.env.REDIS_URL,
+    }) as RedisClientType;
     await redis.connect();
 
     this.state = new State(redis);

@@ -31,7 +31,7 @@ export class AbusiveUserChecker {
     return new Promise((res, rej) => {
       this.#checkerService.checkImage(req, (err, val) => {
         if (err) {
-          console.log('Error checking image:', url, err);
+          console.error('failed to check pfp');
           return rej(err);
         }
 
@@ -67,8 +67,57 @@ export class AbusiveUserChecker {
     return keywords.some(w => normalized.includes(w));
   }
 
+  // TODO: im pretty sure this function is like slow af cus of all the filters
+  async checkMembers(ms: GuildMember[]): Promise<GuildMember[]> {
+    // easy filters
+    const filteredMembers = ms.filter(
+      m =>
+        !m.user.bot &&
+        !m.user.avatar?.startsWith('a_') &&
+        this.checkUsername(m.user.username)
+    );
+
+    const fromRedis = await this.client.state.abusiveUser.getMany(
+      filteredMembers
+    );
+
+    const {abusive, unchecked} = fromRedis.reduce<{
+      abusive: GuildMember[];
+      unchecked: GuildMember[];
+    }>(
+      (acc, [gm, r]) => {
+        if (!r) {
+          acc.unchecked.push(gm);
+          return acc;
+        }
+
+        if (r?.getMatchedAvatar() && r.getMatchedUsername()) {
+          acc.abusive.push(gm);
+          return acc;
+        }
+
+        return acc;
+      },
+      {abusive: [], unchecked: []}
+    );
+
+    const check = async (m: GuildMember) => {
+      const c = await this.checkMember(m, false);
+      if (c?.matchedUsername && c?.matchedAvatar) {
+        return m;
+      }
+      return null;
+    };
+
+    const checkedUnchecked: GuildMember[] = (await Promise.all(
+      unchecked.map(m => check(m))
+    ).then(ch => ch.filter(Boolean))) as GuildMember[];
+
+    return abusive.concat(checkedUnchecked);
+  }
+
   // TODO: this should probably return more data, like hash distance
-  async checkMember(m: GuildMember): Promise<CheckedUser> {
+  async checkMember(m: GuildMember, checkCache = true): Promise<CheckedUser> {
     const u = m.user;
 
     const verdict: CheckedUser = {
@@ -93,17 +142,19 @@ export class AbusiveUserChecker {
       return verdict;
     }
 
-    const fromCache = await this.client.state.abusiveUser.get(m);
-    if (fromCache) {
-      return {
-        matchedUsername: fromCache.getMatchedUsername(),
-        matchedAvatar: fromCache.getMatchedAvatar(),
-        user: u,
-        nearestAvatar: fromCache.getNearestAvatar(),
-      };
+    if (checkCache) {
+      const fromCache = await this.client.state.abusiveUser.get(m);
+      if (fromCache) {
+        return {
+          matchedUsername: fromCache.getMatchedUsername(),
+          matchedAvatar: fromCache.getMatchedAvatar(),
+          user: u,
+          nearestAvatar: fromCache.getNearestAvatar(),
+        };
+      }
     }
 
-    const av = u.avatarURL({dynamic: false, format: 'png', size: 4096});
+    const av = u.avatarURL({dynamic: false, format: 'png', size: 256});
     if (!av) {
       await this.client.state.abusiveUser.set(m, verdict);
       // TODO: what should happen if they don't have an avatar?
@@ -128,7 +179,7 @@ export class AbusiveUserChecker {
         return verdict;
       }
     } catch (err) {
-      console.log(`failed to check for user ${u.id} ${av}:`, err);
+      // avatar probably 404'd
     }
 
     await this.client.state.abusiveUser.set(m, verdict);

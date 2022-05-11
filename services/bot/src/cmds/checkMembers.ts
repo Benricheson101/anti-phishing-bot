@@ -60,9 +60,10 @@ export class CheckMembersCommand extends Command {
     });
 
     const members = await i.guild.members.fetch({force: true});
-    const found = await Promise.all(
-      members.map(m => this.client.services.abusiveUserChecker.checkMember(m))
-    ).then(c => c.filter(m => m.matchedUsername && m.matchedAvatar));
+
+    const found = await this.client.services.abusiveUserChecker.checkMembers(
+      members.toJSON()
+    );
 
     const abusive = [...found];
 
@@ -134,7 +135,7 @@ export class CheckMembersCommand extends Command {
 
     await this.client.state.checkMembersButton.set(
       m.id,
-      found.map(m => m.user.id)
+      abusive.map(m => m.user.id)
     );
   }
 }
