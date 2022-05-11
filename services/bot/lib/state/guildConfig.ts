@@ -25,7 +25,11 @@ export class GuildConfigState {
 
     const v = val.serializeBinary();
 
-    return this.redis.setEx(this.#cacheKey(guildID), this.#ttl, Buffer.from(v));
+    return this.redis.setEx(
+      this.#cacheKey(guildID),
+      this.#ttl,
+      Buffer.from(v).toString('base64')
+    );
   }
 
   async get(guildID: string): Promise<GuildConfigs | null> {
@@ -34,7 +38,7 @@ export class GuildConfigState {
       return null;
     }
 
-    const buf = Buffer.from(fromRedis);
+    const buf = Buffer.from(fromRedis, 'base64');
     const deser = GuildConfigCached.deserializeBinary(buf);
 
     return {

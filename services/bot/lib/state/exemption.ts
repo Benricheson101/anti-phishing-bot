@@ -25,7 +25,7 @@ export class ExemptionState {
     return this.redis.setEx(
       this.#cacheKey(exemption.guildId, exemption.id),
       this.#ttl,
-      Buffer.from(ser)
+      Buffer.from(ser).toString('base64')
     );
   }
 
@@ -35,7 +35,7 @@ export class ExemptionState {
       return null;
     }
 
-    const buf = Buffer.from(fromRedis);
+    const buf = Buffer.from(fromRedis, 'base64');
     const deser = ExemptionCached.deserializeBinary(buf);
 
     return {

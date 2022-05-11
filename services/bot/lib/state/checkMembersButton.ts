@@ -17,7 +17,10 @@ export class CheckMembersButtonState {
 
     const v = val.serializeBinary();
 
-    return this.redis.set(this.#cacheKey(msgID), Buffer.from(v));
+    return this.redis.set(
+      this.#cacheKey(msgID),
+      Buffer.from(v).toString('base64')
+    );
   }
 
   async get(msgID: string): Promise<CheckMembersButtonStateValue | null> {
@@ -26,7 +29,7 @@ export class CheckMembersButtonState {
       return null;
     }
 
-    const buf = Buffer.from(fromRedis);
+    const buf = Buffer.from(fromRedis, 'base64');
     const deser = CheckMembersButtonCached.deserializeBinary(buf);
 
     return deser.getMembersList();
