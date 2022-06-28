@@ -3,6 +3,7 @@ import {
   MessageButtonStyles,
   MessageComponentTypes,
 } from 'discord.js/typings/enums';
+
 import {Client} from 'fish';
 
 export const handleCheckMembersButton = async (
@@ -25,7 +26,7 @@ export const handleCheckMembersButton = async (
 
   const [, action] = i.customId.split(':');
 
-  const users = client.db.checkMembersButtonState.get(i.message.id);
+  const users = await client.state.checkMembersButton.get(i.message.id);
 
   const clearButtons = () =>
     i.update({

@@ -1,5 +1,6 @@
-import {CommandInteraction} from 'discord.js';
 import {APIApplicationCommandOption} from 'discord-api-types';
+import {CommandInteraction} from 'discord.js';
+
 import {Client} from './client';
 
 export abstract class Command {

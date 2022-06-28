@@ -1,5 +1,5 @@
-import {Routes} from 'discord-api-types/v9';
 import {REST} from '@discordjs/rest';
+import {Routes} from 'discord-api-types/v9';
 
 const TOKEN = process.env.DISCORD_TOKEN!;
 const APP_ID = Buffer.from(TOKEN.split('.')[0], 'base64').toString();

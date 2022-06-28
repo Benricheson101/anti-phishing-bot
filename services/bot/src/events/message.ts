@@ -1,5 +1,6 @@
 import {ActionKind} from '@prisma/client';
 import {Message} from 'discord.js';
+
 import {ClientEventNames, Event} from 'fish';
 
 export class MessageCreateEvent extends Event {
@@ -48,7 +49,7 @@ export class MessageCreateEvent extends Event {
               actions.push(guildConfig.phishingAction);
             }
 
-            await msg.member?.send({
+            await member.send({
               content: `Phishing link detected in **${
                 msg.guild!.name
               }**. Actions taken: ${actions
@@ -74,8 +75,8 @@ export class MessageCreateEvent extends Event {
             break;
 
           case 'BAN': {
-            if (msg.member!.bannable) {
-              await msg.member!.ban({
+            if (member.bannable) {
+              await member.ban({
                 reason: `Posted a phishing URL: ${hitDomain}`,
               });
               actionsTaken.push('BAN');
@@ -87,8 +88,8 @@ export class MessageCreateEvent extends Event {
           }
 
           case 'SOFTBAN': {
-            if (msg.member!.bannable) {
-              await msg.member!.ban({
+            if (member.bannable) {
+              await member.ban({
                 reason: `[SOFTBAN] Posted a phishing URL: ${hitDomain}`,
                 days: 1,
               });
@@ -113,7 +114,7 @@ export class MessageCreateEvent extends Event {
             }
 
             try {
-              await msg.member!.roles.add(guildConfig.muteRole);
+              await member.roles.add(guildConfig.muteRole);
               actionsTaken.push('MUTE');
             } catch {
               actionsFailed.push('MUTE');
@@ -122,8 +123,8 @@ export class MessageCreateEvent extends Event {
           }
 
           case 'KICK': {
-            if (msg.member!.kickable) {
-              await msg.member!.kick(`Posted a phishing URL: ${hitDomain}`);
+            if (member.kickable) {
+              await member.kick(`Posted a phishing URL: ${hitDomain}`);
               actionsTaken.push('KICK');
             } else {
               actionsFailed.push('KICK');
@@ -134,7 +135,7 @@ export class MessageCreateEvent extends Event {
 
           case 'TIMEOUT': {
             try {
-              await msg.member!.timeout(
+              await member.timeout(
                 Number(guildConfig.timeoutDuration),
                 `Posted a phishing URL: ${hitDomain}`
               );

@@ -1,5 +1,6 @@
 import {ApplicationCommandOptionType} from 'discord-api-types';
 import {CommandInteraction} from 'discord.js';
+
 import {Command} from 'fish';
 
 export class LookupCommand extends Command {

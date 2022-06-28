@@ -12,6 +12,9 @@ declare global {
       API_URL: string;
       PROMETHEUS_URL: string;
 
+      DATABASE_URL: string;
+      REDUS_URL: string;
+
       GRPC_CHECKER_SERVICE_URL: string;
 
       // dev stuff

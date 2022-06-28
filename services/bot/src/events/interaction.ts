@@ -1,5 +1,7 @@
 import {Interaction} from 'discord.js';
+
 import {ClientEventNames, Event} from 'fish';
+
 import {handleCheckMembersButton} from '../buttons/checkMembers';
 
 export class InteractionCreateEvent extends Event {

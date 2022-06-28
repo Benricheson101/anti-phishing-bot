@@ -1,6 +1,7 @@
 import {CommandInteraction} from 'discord.js';
-import {Command} from 'fish';
 import {request} from 'undici';
+
+import {Command} from 'fish';
 
 export class StatsCommand extends Command {
   name = 'stats';

@@ -6,6 +6,7 @@ import {
 } from 'discord-api-types';
 import {CommandInteraction, Permissions} from 'discord.js';
 import ms, {StringValue} from 'ms';
+
 import {Command} from 'fish';
 
 const MAX_TIMEOUT_DURATION = ms('28d');

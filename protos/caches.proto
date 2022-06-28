@@ -1,0 +1,52 @@
+syntax = "proto3";
+package fish;
+// not using in the go service but protoc will complain if I omit this
+option go_package = "pkg/protos";
+
+import "abusiveUserChecker.proto";
+
+message CheckMembersButtonCached {
+  repeated string members = 1;
+}
+
+message CheckedUserCached {
+  message BasicDiscordUser {
+    string id = 1;
+    string username = 2;
+    string discriminator = 3;
+    string avatar = 4;
+  }
+
+  BasicDiscordUser user = 1;
+  bool matched_username = 2;
+  bool matched_avatar = 3;
+  CheckImageResponse nearest_avatar = 4;
+}
+
+message GuildConfigCached {
+  enum ActionKind {
+    NONE = 0;
+    BAN = 1;
+    SOFTBAN = 2;
+    KICK = 3;
+    MUTE = 4;
+    TIMEOUT = 5;
+  }
+
+  bool delete = 1;
+  ActionKind phishing_action = 2;
+  ActionKind abusive_user_action = 3;
+  string log_channel = 4;
+  string mute_role = 5;
+  bool notify = 6;
+  string timeout_duration = 7; // should be int64 but protoc doesnt like BitInt :<
+}
+
+message ExemptionCached {
+  enum ExemptionKind {
+    USER = 0;
+    ROLE = 1;
+  }
+
+  ExemptionKind kind = 1;
+}

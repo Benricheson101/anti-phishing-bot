@@ -1,6 +1,7 @@
 import {ActionKind} from '@prisma/client';
 import {GuildMember} from 'discord.js';
-import {ClientEventNames, Event, doAction, Client} from 'fish';
+
+import {Client, ClientEventNames, Event, doAction} from 'fish';
 
 export class MemberJoinEvent extends Event {
   name: ClientEventNames = 'guildMemberAdd';
@@ -13,6 +14,7 @@ export class MemberJoinEvent extends Event {
 export class MemberUpdateEvent extends Event {
   name: ClientEventNames = 'guildMemberUpdate';
 
+  // TODO: this doesn't work because discord.js is dumb
   async run(oldMember: GuildMember, newMember: GuildMember) {
     const changedUsername = oldMember.user.username !== newMember.user.username;
     const changedAvatar = oldMember.user.avatar !== newMember.user.avatar;
@@ -34,9 +36,7 @@ const run = async (client: Client, member: GuildMember) => {
     return;
   }
 
-  const checked = await client.services.abusiveUserChecker.checkUser(
-    member.user
-  );
+  const checked = await client.services.abusiveUserChecker.checkMember(member);
 
   if (!(checked.matchedUsername && checked.matchedAvatar)) {
     return;
