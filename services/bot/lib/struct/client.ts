@@ -62,13 +62,27 @@ export class Client extends DJSClient {
     events
       .filter(e => !e.once)
       .map(e => {
-        this.on(e.name, (...args) => e.run(...args));
+        this.on(e.name, (...args) => {
+          // FIXME: ugly hack
+          try {
+            return e.run(...args);
+          } catch {
+            return;
+          }
+        });
       });
 
     events
       .filter(e => e.once)
       .map(e => {
-        this.once(e.name, (...args) => e.run(...args));
+        this.once(e.name, (...args) => {
+          // FIXME: ugly hack
+          try {
+            return e.run(...args);
+          } catch {
+            return;
+          }
+        });
       });
   }
 

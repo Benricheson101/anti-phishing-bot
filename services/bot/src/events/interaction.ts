@@ -21,7 +21,11 @@ export class InteractionCreateEvent extends Event {
       const [kind] = i.customId.split(':');
       switch (kind) {
         case 'check_members': {
-          await handleCheckMembersButton(this.client, i);
+          try {
+            await handleCheckMembersButton(this.client, i);
+          } catch {
+            //
+          }
           break;
         }
       }
