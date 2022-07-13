@@ -14,7 +14,6 @@ services:
     deploy:
       restart_policy:
         condition: 'on-failure'
-    pull_policy: 'build'
     environment:
       DATABASE_URL: 'postgres://prisma:prisma@db/fish?connect_timeout=3000&schema=prisma'
       REDIS_URL: 'redis://redis:6379/0'
@@ -36,7 +35,6 @@ services:
     deploy:
       restart_policy:
         condition: 'on-failure'
-    pull_policy: 'build'
     environment:
       DATABASE_URL: 'postgres://prisma:prisma@db/fish?sslmode=disable'
       GRPC_ADDR: ':3000'
@@ -66,13 +64,11 @@ services:
       - 'grafana_data:/var/lib/grafana'
     depends_on:
       - 'prometheus'
-    pull_policy: 'build'
 
   prometheus:
     build: './docker/prometheus'
     volumes:
       - 'prometheus_data:/prometheus'
-    pull_policy: 'build'
 
 volumes:
   grafana_data:
