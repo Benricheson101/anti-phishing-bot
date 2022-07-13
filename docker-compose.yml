@@ -5,29 +5,39 @@ services:
     build:
       context: '.'
       dockerfile: './services/bot/Dockerfile'
-    volumes:
-      - './.env:/usr/src/app/.env'
     depends_on:
       - 'db'
       - 'abusive_user_checker'
       - 'prometheus'
+      - 'redis'
     platform: 'linux/x86_64'
     deploy:
       restart_policy:
         condition: 'on-failure'
+    environment:
+      DATABASE_URL: 'postgres://prisma:prisma@db/fish?connect_timeout=3000&schema=prisma'
+      REDIS_URL: 'redis://redis:6379/0'
+      PORT: '9000'
+      PROMETHEUS_URL: 'http://prometheus:9090'
+      GRPC_CHECKER_SERVICE_URL: 'abusive_user_checker:3000'
+      NODE_ENV: '${NODE_ENV:-production}'
+      API_URL: '${API_URL}'
+      DISCORD_TOKEN: '${DISCORD_TOKEN}'
+      SHARD_COUNT: '${SHARD_COUNT}'
 
   abusive_user_checker:
     build:
       context: '.'
       dockerfile: './services/abusive-user-checker/Dockerfile'
-    volumes:
-      - './.env:/.env'
     depends_on:
       - 'db'
       - 'prometheus'
     deploy:
       restart_policy:
         condition: 'on-failure'
+    environment:
+      DATABASE_URL: 'postgres://prisma:prisma@db/fish?sslmode=disable'
+      GRPC_ADDR: ':3000'
 
   db:
     command: "postgres -c listen_addresses='*'"
@@ -47,22 +57,17 @@ services:
       - 'redis_data:/data'
 
   grafana:
-    image: 'grafana/grafana'
+    build: './docker/grafana'
     ports:
       - '3000:3000'
     volumes:
-      - './metrics/fish_dashboard.json:/etc/grafana/provisioning/dashboards/fish_dashboard.json'
-      - './metrics/grafana/provisioning:/etc/grafana/provisioning'
       - 'grafana_data:/var/lib/grafana'
-    environment:
-      GF_AUTH_ANONYMOUS_ENABLED: 'true'
     depends_on:
       - 'prometheus'
 
   prometheus:
-    image: 'prom/prometheus'
+    build: './docker/prometheus'
     volumes:
-      - './metrics/prometheus.yml:/etc/prometheus/prometheus.yml'
       - 'prometheus_data:/prometheus'
 
 volumes:
