@@ -23,6 +23,7 @@ services:
       NODE_ENV: '${NODE_ENV:-production}'
       API_URL: '${API_URL}'
       DISCORD_TOKEN: '${DISCORD_TOKEN}'
+      SHARD_COUNT: '${SHARD_COUNT}'
 
   abusive_user_checker:
     build:
