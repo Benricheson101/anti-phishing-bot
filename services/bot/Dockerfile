@@ -18,7 +18,7 @@ COPY ./protos ./protos
 
 RUN prisma generate
 
-RUN mkdir ./lib/protos
+RUN mkdir -p ./lib/protos
 RUN protoc \
   -I="./protos" \
   --plugin="protoc-gen-ts=./node_modules/.bin/protoc-gen-ts" \

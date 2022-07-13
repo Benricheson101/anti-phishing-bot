@@ -12,6 +12,7 @@
 !/services/bot/tsconfig.json
 
 !/services/abusive-user-checker/cmd
+!/services/abusive-user-checker/db
 !/services/abusive-user-checker/pkg
 !/services/abusive-user-checker/go.mod
 !/services/abusive-user-checker/go.sum
