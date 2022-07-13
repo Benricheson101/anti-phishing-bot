@@ -135,7 +135,7 @@ export class CheckMembersCommand extends Command {
 
     await this.client.state.checkMembersButton.set(
       m.id,
-      abusive.map(m => m.user.id)
+      found.map(m => m.user.id)
     );
   }
 }

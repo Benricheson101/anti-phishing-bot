@@ -31,7 +31,7 @@ export class AbusiveUserChecker {
     return new Promise((res, rej) => {
       this.#checkerService.checkImage(req, (err, val) => {
         if (err) {
-          console.error('failed to check pfp');
+          console.error(err);
           return rej(err);
         }
 
