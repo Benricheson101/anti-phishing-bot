@@ -4,8 +4,7 @@
 
 FROM golang:bullseye AS builder
 
-RUN apt-get update -y
-RUN apt-get install -y protobuf-compiler curl
+RUN apt-get update -y && apt-get install -y protobuf-compiler curl
 RUN go install github.com/golang/protobuf/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 \
@@ -26,6 +25,7 @@ RUN protoc \
 RUN go build -o abusive-user-checker cmd/server/main.go
 
 FROM debian:stable-slim AS runtime
+RUN apt-get update -y && apt-get install -y ca-certificates
 COPY --from=builder /usr/src/app/abusive-user-checker /bin
 # this is such a hack -- idk how i should do db migrations
 COPY --from=builder /usr/local/bin/dbmate /usr/local/bin/dbmate
