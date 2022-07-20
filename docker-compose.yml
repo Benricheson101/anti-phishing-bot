@@ -51,7 +51,13 @@ services:
         condition: 'on-failure'
     environment:
       API_URL: '${API_URL}'
+      PORT: '9000'
       REDIS_URL: 'redis://redis:6379/0'
+    healthcheck:
+      test: 'curl --fail http://localhost:${PORT}/health'
+      interval: '2m30s'
+      start_period: '30s'
+      retries: 3
 
   db:
     command: "postgres -c listen_addresses='*'"
