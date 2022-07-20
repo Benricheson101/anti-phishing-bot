@@ -97,9 +97,6 @@ async fn loop_fn(
             "one or more sources may be down. skipping...",
         );
 
-        // TODO: custom error type here?
-        // return Ok((from_discord.len(), from_api.len(), uniq_vec.len()));
-
         return Err(DomainServiceError::LargeRemovalErr);
     }
 
