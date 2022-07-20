@@ -7,3 +7,8 @@ scrape_configs:
         labels:
           service: 'fish'
           group: 'production'
+
+      - targets: ['domain-scraper:9000']
+        labels:
+          service: 'domain-scraper'
+          group: 'production'
