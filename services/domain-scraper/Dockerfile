@@ -2,7 +2,7 @@ FROM rust:alpine AS builder
 RUN rustup default stable && rustup update stable
 RUN apk add openssl-dev gcc libc-dev
 WORKDIR /usr/src/app
-COPY . .
+COPY ./services/domain-scraper/. .
 RUN cargo build --release
 
 FROM alpine AS runtime
