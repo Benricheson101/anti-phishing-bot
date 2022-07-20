@@ -16,6 +16,9 @@ pub enum DomainServiceError {
         err: reqwest::Error,
     },
 
+    #[error("A large number of domains are missing. Skipping...")]
+    LargeRemovalErr,
+
     #[error("{0}")]
     RedisErr(redis::RedisError),
 }

@@ -64,3 +64,36 @@ pub async fn get_hashes_from_phish_api(
 
     Ok(hashes)
 }
+
+pub async fn get_shortener_list() -> Result<Vec<String>, DomainServiceError> {
+    const URL: &str = "https://raw.githubusercontent.com/nwunderly/ouranos/master/shorteners.txt";
+
+    let shorteners: String = Client::new()
+        .get(URL)
+        .send()
+        .await
+        .map_err(|err| DomainServiceError::ReqSendErr {
+            source: URL.to_string(),
+            err,
+        })?
+        .text()
+        .await
+        .map_err(|err| DomainServiceError::ReadBodyErr {
+            source: URL.to_string(),
+            err,
+        })?;
+
+    // these don't need to be hashes, but I'm hashing them to be consistent with
+    // the domains list
+    let shortener_vec = shorteners
+        .lines()
+        .map(|d| {
+            let mut hasher = Sha256::new();
+            hasher.update(d.trim().as_bytes());
+            let hash = hasher.finalize();
+            format!("{:x}", hash)
+        })
+        .collect::<Vec<_>>();
+
+    Ok(shortener_vec)
+}
