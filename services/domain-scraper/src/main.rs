@@ -2,6 +2,7 @@ use std::{collections::HashSet, env, sync::Arc, time::Duration};
 
 use error::DomainServiceError;
 use health::AppHealth;
+use metrics::{DomainSource, Metrics};
 use redis::{AsyncCommands, Client as RedisClient};
 use sources::{
     get_hashes_from_discord,
@@ -13,6 +14,8 @@ use tracing::{error, info};
 
 pub mod error;
 mod health;
+mod metrics;
+mod server;
 mod sources;
 
 #[tokio::main]
@@ -23,16 +26,17 @@ async fn main() {
     let redis_client = RedisClient::open(redis_url).unwrap();
 
     let health = Arc::new(RwLock::new(AppHealth::new(5)));
+    let metrics = Arc::new(Metrics::new());
 
+    let health_clone = health.clone();
+    let metrics_clone = metrics.clone();
     let mut interval = time::interval(Duration::from_secs(300));
-    let handle = tokio::spawn(async move {
+    tokio::spawn(async move {
         loop {
             interval.tick().await;
 
-            let health = health.clone();
-
             info!("collecting new domains");
-            match loop_fn(&redis_client).await {
+            match loop_fn(&redis_client, &metrics_clone).await {
                 Ok((
                     from_discord,
                     from_api,
@@ -47,24 +51,28 @@ async fn main() {
                         "updated domain lists",
                     );
 
-                    health.write().await.set_succeeded_request();
+                    health_clone.write().await.set_succeeded_request();
                 },
 
                 Err(err) => {
                     error!("{}", err);
 
-                    health.write().await.set_failed_request();
+                    health_clone.write().await.set_failed_request();
                 },
             }
         }
     });
 
-    handle.await.unwrap();
+    let server_metrics = metrics.clone();
+    let server_health = health.clone();
+
+    server::start_server(server_metrics, server_health).await;
 }
 
 // TODO: put this into other main function
 async fn loop_fn(
     redis_client: &RedisClient,
+    metrics: &Metrics,
 ) -> Result<(usize, usize, usize, usize), DomainServiceError> {
     let mut redis_conn = redis_client
         .get_async_connection()
@@ -74,6 +82,9 @@ async fn loop_fn(
     let from_discord = get_hashes_from_discord().await?;
     let from_api = get_hashes_from_phish_api().await?;
     let shorteners = get_shortener_list().await?;
+
+    metrics.update_domain_count(DomainSource::PhishAPI, from_api.len());
+    metrics.update_domain_count(DomainSource::Discord, from_discord.len());
 
     let mut all = from_discord.clone();
     all.append(&mut from_api.clone());
