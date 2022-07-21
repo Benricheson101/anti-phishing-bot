@@ -1,0 +1,21 @@
+services:
+  bot:
+    build:
+      context: '.'
+      dockerfile: './services/bot/Dockerfile'
+
+  abusive-user-checker:
+    build:
+      context: '.'
+      dockerfile: './services/abusive-user-checker/Dockerfile'
+
+  domain-scraper:
+    build:
+      context: '.'
+      dockerfile: './services/domain-scraper/Dockerfile'
+
+  grafana:
+    build: './docker/grafana'
+
+  prometheus:
+    build: './docker/prometheus'
