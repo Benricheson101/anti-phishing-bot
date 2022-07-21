@@ -6,6 +6,6 @@ COPY ./services/domain-scraper/. .
 RUN cargo build --release
 
 FROM debian:stable-slim AS runtime
-RUN apt-get update -y && apt-get install -y ca-certificates
+RUN apt-get update -y && apt-get install -y ca-certificates curl
 COPY --from=builder /usr/src/app/target/release/fish-domain-scraper /bin/fish-domain-scraper
 ENTRYPOINT [ "/bin/fish-domain-scraper" ]
