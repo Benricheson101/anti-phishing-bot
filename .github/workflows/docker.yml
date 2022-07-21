@@ -26,6 +26,14 @@ jobs:
             images: |
               benricheson101/fish-domain-scraper-service
               ghcr.io/${{ github.actor }}/fish-domain-scraper-service
+          - dockerfile: './docker/prometheus/Dockerfile'
+            images: |
+              benricheson101/fish-prometheus
+              ghcr.io/${{ github.actor }}/fish-prometheus
+          - dockerfile: './docker/grafana/Dockerfile'
+            images: |
+              benricheson101/fish-grafana
+              ghcr.io/${{ github.actor }}/fish-grafana
 
     steps:
       - name: 'Check out the repo'

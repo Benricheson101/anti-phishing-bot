@@ -2,9 +2,7 @@ version: '3.9'
 
 services:
   bot:
-    build:
-      context: '.'
-      dockerfile: './services/bot/Dockerfile'
+    image: 'benricheson101/fish-bot'
     depends_on:
       - 'db'
       - 'abusive-user-checker'
@@ -26,9 +24,7 @@ services:
       SHARD_COUNT: '${SHARD_COUNT}'
 
   abusive-user-checker:
-    build:
-      context: '.'
-      dockerfile: './services/abusive-user-checker/Dockerfile'
+    image: 'benricheson101/fish-abusive-user-service'
     depends_on:
       - 'db'
       - 'prometheus'
@@ -40,11 +36,10 @@ services:
       GRPC_ADDR: ':3000'
 
   domain-scraper:
-    build:
-      context: '.'
-      dockerfile: './services/domain-scraper/Dockerfile'
+    image: 'benricheson101/fish-domain-scraper'
     depends_on:
       - 'redis'
+      - 'prometheus'
     deploy:
       restart_policy:
         condition: 'on-failure'
@@ -76,7 +71,7 @@ services:
       - 'redis_data:/data'
 
   grafana:
-    build: './docker/grafana'
+    image: 'benricheson101/fish-prometheus'
     ports:
       - '3000:3000'
     volumes:
@@ -85,7 +80,7 @@ services:
       - 'prometheus'
 
   prometheus:
-    build: './docker/prometheus'
+    image: 'benricheson101/fish-grafana'
     volumes:
       - 'prometheus_data:/prometheus'
 
