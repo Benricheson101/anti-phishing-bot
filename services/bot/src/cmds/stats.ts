@@ -43,9 +43,11 @@ export class StatsCommand extends Command {
         d?: PrometheusQueryResult['data']['result'][number]
       ) => (d ? Math.round(parseFloat(d.value[1])) : 0);
 
-      const totalDomains = roundPromResult(
-        domainCount.find(d => !d.metric.source)
-      );
+      const [totalDomains, totalShorteners] = (await this.client.redis
+        .multi()
+        .sCard('domains')
+        .sCard('shorteners')
+        .exec()) as [number, number];
 
       const domainsFromDiscord = roundPromResult(
         domainCount.find(d => d.metric.source === 'discord')
@@ -90,6 +92,8 @@ export class StatsCommand extends Command {
         => Total Domains: ${totalDomains}
           - Phish API  : ${domainsFromPhishApi}
           - Discord CDN: ${domainsFromDiscord}
+
+        => Total Shorteners: ${totalShorteners}
 
         => Total Hits (24h): ${totalHits24h}
           - Direct  : ${directHit24h}
