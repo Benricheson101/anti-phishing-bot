@@ -1,2 +1,2 @@
 FROM prom/prometheus
-COPY prometheus.yml /etc/prometheus/
+COPY ./docker/prometheus/prometheus.yml /etc/prometheus/

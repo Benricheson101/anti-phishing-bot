@@ -15,7 +15,11 @@ services:
       dockerfile: './services/domain-scraper/Dockerfile'
 
   grafana:
-    build: './docker/grafana'
+    build:
+      context: '.'
+      dockerfile: './docker/grafana/Dockerfile'
 
   prometheus:
-    build: './docker/prometheus'
+    build:
+      context: '.'
+      dockerfile: './docker/prometheus/Dockerfile'
