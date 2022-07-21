@@ -71,7 +71,7 @@ services:
       - 'redis_data:/data'
 
   grafana:
-    image: 'benricheson101/fish-prometheus'
+    image: 'benricheson101/fish-grafana'
     ports:
       - '3000:3000'
     volumes:
@@ -80,7 +80,7 @@ services:
       - 'prometheus'
 
   prometheus:
-    image: 'benricheson101/fish-grafana'
+    image: 'benricheson101/fish-prometheus'
     volumes:
       - 'prometheus_data:/prometheus'
 
