@@ -1,21 +1,25 @@
-**Legal**
-> What user/guild data do I store
-I store:
-- guild ID
-- log channel ID
-- mute role ID
-- exempt user IDs
-- exempt role IDs
+# Legal
 
-**The bot does __not__ store any PII**
+* What user/guild data does Fish store?
 
-> Where is my data stored?
-All data is stored in a PostgreSQL database running in a Docker container on a server only accessable by SSH key.
+  - Server IDs
+  - Log channel IDs
+  - Mute role ID
+  - Exempt user IDs
+  - Exempt role IDs
 
-> What is it used for?
+## Fish does __not__ store any personal identifiable information.
+
+* Where is my data stored?
+
+All data is stored in a PostgreSQL database running inside of a Docker container on a server only accessable via an SSH key.
+
+* What is it used for?
+
 Server configuration.
 
-> I would like to have my data removed
+* I would like to have my data removed.
+
 Contact me. See below for contact info.
 
 ---
