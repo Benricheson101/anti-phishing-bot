@@ -15,17 +15,6 @@ export class Metrics {
     help: 'the number of servers the bot is in',
   });
 
-  readonly domainCount = new Gauge({
-    name: 'domain_count',
-    help: 'the number of malicious domains the bot knows about',
-    labelNames: ['source'],
-  });
-
-  readonly shortenerCount = new Gauge({
-    name: 'shortener_count',
-    help: 'the number of url shorteners supported',
-  });
-
   readonly commandUsed = new Gauge({
     name: 'commands_used',
     help: 'the number of commands used',
@@ -66,15 +55,6 @@ export class Metrics {
   addDomainHit(domain: string, wasRedirect = false) {
     this.domainHits.inc({domain, was_redirect: String(wasRedirect)});
   }
-
-  updateDomainCount(count: number, source: 'phish_api' | 'discord' | '' = '') {
-    this.domainCount.set({source}, count);
-  }
-
-  updateShortenerCount(count: number) {
-    this.shortenerCount.set(count);
-  }
-
   updateGuildCount() {
     this.guildCount.set(this.client.guilds.cache.size);
   }

@@ -17,6 +17,10 @@
 !/services/abusive-user-checker/go.mod
 !/services/abusive-user-checker/go.sum
 
+!/services/domain-scraper/src
+!/services/domain-scraper/Cargo.toml
+!/services/domain-scraper/Cargo.lock
+
 *pb.d.ts
 *.pb.go
 

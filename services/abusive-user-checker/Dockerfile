@@ -1,7 +1,3 @@
-# FROM golang:alpine AS builder
-
-# RUN apk add protoc
-
 FROM golang:bullseye AS builder
 
 RUN apt-get update -y && apt-get install -y protobuf-compiler curl

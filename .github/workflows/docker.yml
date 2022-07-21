@@ -22,6 +22,10 @@ jobs:
             images: |
               benricheson101/fish-abusive-user-service
               ghcr.io/${{ github.actor }}/fish-abusive-user-service
+          - dockerfile: './services/domain-scraper/Dockerfile'
+            images: |
+              benricheson101/fish-domain-scraper-service
+              ghcr.io/${{ github.actor }}/fish-domain-scraper-service
 
     steps:
       - name: 'Check out the repo'

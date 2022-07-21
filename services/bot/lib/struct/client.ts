@@ -16,6 +16,7 @@ export class Client extends DJSClient {
   cmds = new Collection<string, Command>();
   db!: Database;
   state!: State;
+  redis!: RedisClientType;
 
   services!: ServiceManager;
 
@@ -48,6 +49,7 @@ export class Client extends DJSClient {
 
     this.state = new State(redis);
     this.db = new Database(postgres, this.state);
+    this.redis = redis;
     this.logger = new Logger(this);
     this.services = new ServiceManager(this);
 

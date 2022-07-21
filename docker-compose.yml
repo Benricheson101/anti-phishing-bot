@@ -7,7 +7,8 @@ services:
       dockerfile: './services/bot/Dockerfile'
     depends_on:
       - 'db'
-      - 'abusive_user_checker'
+      - 'abusive-user-checker'
+      - 'domain-scraper'
       - 'prometheus'
       - 'redis'
     platform: 'linux/x86_64'
@@ -19,13 +20,12 @@ services:
       REDIS_URL: 'redis://redis:6379/0'
       PORT: '9000'
       PROMETHEUS_URL: 'http://prometheus:9090'
-      GRPC_CHECKER_SERVICE_URL: 'abusive_user_checker:3000'
+      GRPC_CHECKER_SERVICE_URL: 'abusive-user-checker:3000'
       NODE_ENV: '${NODE_ENV:-production}'
-      API_URL: '${API_URL}'
       DISCORD_TOKEN: '${DISCORD_TOKEN}'
       SHARD_COUNT: '${SHARD_COUNT}'
 
-  abusive_user_checker:
+  abusive-user-checker:
     build:
       context: '.'
       dockerfile: './services/abusive-user-checker/Dockerfile'
@@ -38,6 +38,25 @@ services:
     environment:
       DATABASE_URL: 'postgres://prisma:prisma@db/fish?sslmode=disable'
       GRPC_ADDR: ':3000'
+
+  domain-scraper:
+    build:
+      context: '.'
+      dockerfile: './services/domain-scraper/Dockerfile'
+    depends_on:
+      - 'redis'
+    deploy:
+      restart_policy:
+        condition: 'on-failure'
+    environment:
+      PORT: '9000'
+      REDIS_URL: 'redis://redis:6379/0'
+      API_URL: '${API_URL}'
+    healthcheck:
+      test: 'curl --fail http://localhost:9000/health'
+      interval: '2m30s'
+      start_period: '30s'
+      retries: 3
 
   db:
     command: "postgres -c listen_addresses='*'"
