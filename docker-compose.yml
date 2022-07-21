@@ -22,7 +22,6 @@ services:
       PROMETHEUS_URL: 'http://prometheus:9090'
       GRPC_CHECKER_SERVICE_URL: 'abusive-user-checker:3000'
       NODE_ENV: '${NODE_ENV:-production}'
-      API_URL: '${API_URL}'
       DISCORD_TOKEN: '${DISCORD_TOKEN}'
       SHARD_COUNT: '${SHARD_COUNT}'
 
@@ -50,11 +49,11 @@ services:
       restart_policy:
         condition: 'on-failure'
     environment:
-      API_URL: '${API_URL}'
       PORT: '9000'
       REDIS_URL: 'redis://redis:6379/0'
+      API_URL: '${API_URL}'
     healthcheck:
-      test: 'curl --fail http://localhost:${PORT}/health'
+      test: 'curl --fail http://localhost:9000/health'
       interval: '2m30s'
       start_period: '30s'
       retries: 3

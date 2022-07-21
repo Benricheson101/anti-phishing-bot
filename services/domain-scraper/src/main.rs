@@ -85,6 +85,7 @@ async fn loop_fn(
 
     metrics.update_domain_count(DomainSource::PhishAPI, from_api.len());
     metrics.update_domain_count(DomainSource::Discord, from_discord.len());
+    metrics.update_shortener_count(shorteners.len());
 
     let mut all = from_discord.clone();
     all.append(&mut from_api.clone());

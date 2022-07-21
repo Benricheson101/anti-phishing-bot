@@ -14,7 +14,7 @@ pub async fn start_server(
     metrics: Arc<Metrics>,
     health: Arc<RwLock<AppHealth>>,
 ) {
-    let port = env::var("PORT").expect("missing `PORT` in env");
+    let port = env::var("PORT").expect("missing `PORT` in env").parse::<u16>().unwrap();
 
     HttpServer::new(move || {
         App::new()
@@ -25,7 +25,7 @@ pub async fn start_server(
             .service(get_metrics)
             .service(get_health)
     })
-    .bind(("127.0.0.1", port.parse::<u16>().unwrap()))
+    .bind(("0.0.0.0", port))
     .unwrap()
     .run()
     .await

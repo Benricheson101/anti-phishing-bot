@@ -1,8 +1,9 @@
-use prometheus::{Encoder, GaugeVec, Opts, Registry, TextEncoder};
+use prometheus::{Encoder, GaugeVec, Opts, Registry, TextEncoder, Gauge};
 
 #[derive(Debug, Clone)]
 pub struct Metrics {
     domain_count_gauge: GaugeVec,
+    shortener_count: Gauge,
     registry: Registry,
 }
 
@@ -17,6 +18,8 @@ impl Metrics {
         )
         .unwrap();
 
+        let shortener_count = Gauge::new("shortener_count", "the number of url shorteners supported").unwrap();
+
         let registry = Registry::new();
         registry
             .register(Box::new(domain_count_gauge.clone()))
@@ -24,6 +27,7 @@ impl Metrics {
 
         Self {
             domain_count_gauge,
+            shortener_count,
             registry,
         }
     }
@@ -32,6 +36,10 @@ impl Metrics {
         self.domain_count_gauge
             .with_label_values(&[&source.to_string()])
             .set(count as f64);
+    }
+
+    pub fn update_shortener_count(&self, count: usize) {
+        self.shortener_count.set(count as f64);
     }
 
     pub fn dump(&self) -> String {
