@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   bot:
-    image: 'benricheson101/fish-bot'
+    image: 'benricheson101/fish-bot:main'
     depends_on:
       - 'db'
       - 'abusive-user-checker'
@@ -24,7 +24,7 @@ services:
       SHARD_COUNT: '${SHARD_COUNT}'
 
   abusive-user-checker:
-    image: 'benricheson101/fish-abusive-user-service'
+    image: 'benricheson101/fish-abusive-user-service:main'
     depends_on:
       - 'db'
       - 'prometheus'
@@ -36,7 +36,7 @@ services:
       GRPC_ADDR: ':3000'
 
   domain-scraper:
-    image: 'benricheson101/fish-domain-scraper'
+    image: 'benricheson101/fish-domain-scraper-service:main'
     depends_on:
       - 'redis'
       - 'prometheus'
@@ -62,7 +62,7 @@ services:
       POSTGRES_PASSWORD: 'prisma'
       POSTGRES_DB: 'fish'
     volumes:
-      - 'postgres_data:/var/lib/postgresql/data'
+      - 'postgres_data:/var/lib/postgres/data'
 
   redis:
     image: 'redis'
@@ -71,7 +71,7 @@ services:
       - 'redis_data:/data'
 
   grafana:
-    image: 'benricheson101/fish-prometheus'
+    image: 'benricheson101/fish-grafana:main'
     ports:
       - '3000:3000'
     volumes:
@@ -80,7 +80,7 @@ services:
       - 'prometheus'
 
   prometheus:
-    image: 'benricheson101/fish-grafana'
+    image: 'benricheson101/fish-prometheus:main'
     volumes:
       - 'prometheus_data:/prometheus'
 
