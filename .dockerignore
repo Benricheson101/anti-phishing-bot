@@ -21,6 +21,8 @@
 !/services/domain-scraper/Cargo.toml
 !/services/domain-scraper/Cargo.lock
 
+!/docker
+
 *pb.d.ts
 *.pb.go
 
