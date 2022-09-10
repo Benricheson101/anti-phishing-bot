@@ -17,6 +17,7 @@ An example of how you can set up the bot on your server.
 `/config set action:Kick` to kick the user from your server  
 `/config set notify:True` to notify the user that sent the phishing links in direct message about the action (kick)  
 `/config set log_channel:#logs` to send logs of who got caught for phishing into `#logs`  
+`/config set abusive_user_action:Ban` to ban members with known names and profile pictures of phishing accounts. Use `/check_members` to scan manually and take action
 
 
 **View Current Configuration**  
@@ -36,7 +37,8 @@ Use `/support` and join the [support server](https://discord.gg/yn9fXGAW8Q) and 
 `/ping` - See if the bot is receiving commands<br>
 `/stats` - View the current stats for total domains, total hits, or the top ten domain name<br>
 `/lookup` - Check if a domain is registered as a known phishing domain<br>
-`/support` - Get the bot [support server](https://discord.gg/yn9fXGAW8Q) link
+`/support` - Get the bot [support server](https://discord.gg/yn9fXGAW8Q) link<br>
+`/check_members` - Scans the entire server for possible phishing direct message bots. Use `/config set abusive_user_action:Ban` to automate this
 
 ### Configuration<br>
 `/config get` - View your current configuration<br>
