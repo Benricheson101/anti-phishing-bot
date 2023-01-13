@@ -7,7 +7,7 @@ use crate::error::DomainServiceError;
 
 pub async fn get_hashes_from_discord() -> Result<Vec<String>, DomainServiceError>
 {
-    const URL: &str = "https://cdn.discordapp.com/bad-domains/hashes.json";
+    const URL: &str = "https://cdn.discordapp.com/bad-domains/updated_hashes.json";
 
     Client::new()
         .get(URL)
