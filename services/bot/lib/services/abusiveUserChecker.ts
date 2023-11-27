@@ -62,6 +62,9 @@ export class AbusiveUserChecker {
       'system',
       'team',
       'terms',
+      'checkbio',
+      'seebio',
+      'byio',
     ];
 
     return keywords.some(w => normalized.includes(w));
@@ -74,7 +77,8 @@ export class AbusiveUserChecker {
       m =>
         !m.user.bot &&
         !m.user.avatar?.startsWith('a_') &&
-        this.checkUsername(m.user.username)
+        (this.checkUsername(m.user.username) ||
+        (m.user.global_name && this.checkUsername(m.user.global_name)))
     );
 
     const fromRedis = await this.client.state.abusiveUser.getMany(
