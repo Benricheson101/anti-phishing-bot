@@ -78,7 +78,7 @@ export class AbusiveUserChecker {
         !m.user.bot &&
         !m.user.avatar?.startsWith('a_') &&
         (this.checkUsername(m.user.username) ||
-        (m.user.global_name && this.checkUsername(m.user.globalName)))
+        (m.user.globalName && this.checkUsername(m.user.globalName)))
     );
 
     const fromRedis = await this.client.state.abusiveUser.getMany(
