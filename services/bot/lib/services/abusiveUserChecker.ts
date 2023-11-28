@@ -42,7 +42,8 @@ export class AbusiveUserChecker {
 
   // TODO: near match usernames?
   checkUsername(username: string): boolean {
-    const normalized = remove(username).replace(/\s/g, '').toLowerCase();
+    // FIXME: sometimes this catches names like "...te Am...", how should I prevent that?
+    const normalized = remove(username).toLowerCase(); // .replace(/\s/g, '').toLowerCase();
 
     const keywords = [
       'academy',
@@ -54,6 +55,7 @@ export class AbusiveUserChecker {
       'events',
       'hype',
       'hypesquad',
+      'hype squad',
       'message',
       'mod',
       'notif',
@@ -62,8 +64,9 @@ export class AbusiveUserChecker {
       'system',
       'team',
       'terms',
-      'checkbio',
-      'seebio',
+      'check bio',
+      'see bio',
+      'read bio',
       'byio',
     ];
 
