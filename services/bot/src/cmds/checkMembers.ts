@@ -12,7 +12,7 @@ const cooldowns = new Map<string, number>();
 const COOLDOWN = 1_000 * 60; // 1 minute
 
 export class CheckMembersCommand extends Command {
-  name = 'check_members';
+  name = 'check-members';
   description = 'Check if any members in the server are scam accounts';
   options = [];
 
@@ -75,7 +75,7 @@ export class CheckMembersCommand extends Command {
       return;
     }
 
-    let msg = `Found ${abusive.length} abusive member${
+    let msg = `Found ${abusive.length} potentially abusive member${
       abusive.length === 1 ? '' : 's'
     }:\n`;
 

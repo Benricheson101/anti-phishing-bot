@@ -15,6 +15,7 @@ message CheckedUserCached {
     string username = 2;
     string discriminator = 3;
     string avatar = 4;
+    string global_name = 5;
   }
 
   BasicDiscordUser user = 1;

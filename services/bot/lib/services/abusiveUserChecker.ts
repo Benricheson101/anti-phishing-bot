@@ -70,6 +70,8 @@ export class AbusiveUserChecker {
     return keywords.some(w => normalized.includes(w));
   }
 
+  // TODO: pull out common stuff from checkmember and checkmembers so it's not all repeated
+
   // TODO: im pretty sure this function is like slow af cus of all the filters
   async checkMembers(ms: GuildMember[]): Promise<GuildMember[]> {
     // easy filters
@@ -78,7 +80,7 @@ export class AbusiveUserChecker {
         !m.user.bot &&
         !m.user.avatar?.startsWith('a_') &&
         (this.checkUsername(m.user.username) ||
-        (m.user.globalName && this.checkUsername(m.user.globalName)))
+          (m.user.globalName && this.checkUsername(m.user.globalName)))
     );
 
     const fromRedis = await this.client.state.abusiveUser.getMany(
@@ -135,7 +137,9 @@ export class AbusiveUserChecker {
     }
 
     // filters out most users before making DB queries
-    const usernameMatches = this.checkUsername(u.username);
+    const usernameMatches =
+      this.checkUsername(u.username) ||
+      (u.globalName && this.checkUsername(u.globalName));
     if (!usernameMatches) {
       return verdict;
     }
@@ -158,7 +162,7 @@ export class AbusiveUserChecker {
       }
     }
 
-    const av = u.avatarURL({dynamic: false, format: 'png', size: 256});
+    const av = u.displayAvatarURL({dynamic: false, format: 'png', size: 256});
     if (!av) {
       await this.client.state.abusiveUser.set(m, verdict);
       // TODO: what should happen if they don't have an avatar?

@@ -1,2 +1,3 @@
 /.env
 /dev.ts
+/src/cmds/checkMember.ts
