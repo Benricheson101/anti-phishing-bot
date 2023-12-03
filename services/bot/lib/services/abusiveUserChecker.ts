@@ -67,6 +67,8 @@ export class AbusiveUserChecker {
       'check bio',
       'see bio',
       'read bio',
+      'check my',
+      'my bio',
       'byio',
     ];
 
